@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Nigeria's Unified Healthcare Identity</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/index.css" />
+</head>
+<body class="dot-bg">
+
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <!-- Logo circle — add src="your-logo.png" to the img tag to use your logo -->
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+          <img src="" alt="" />
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </div>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#goals">Goals</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a href="#contact" class="btn btn-primary nav-cta" style="padding: 10px 22px; font-size: 0.88rem;">Get Started</a>
+      <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light mode">
+        <i class='bx bx-moon'></i>
+      </button>
+      <div class="nav-burger" id="burger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home" class="mobile-link" style="animation-delay: 0.05s" onclick="closeMenu()">Home</a>
+    <a href="#about" class="mobile-link" style="animation-delay: 0.12s" onclick="closeMenu()">About</a>
+    <a href="#goals" class="mobile-link" style="animation-delay: 0.19s" onclick="closeMenu()">Goals</a>
+    <a href="#testimonials" class="mobile-link" style="animation-delay: 0.26s" onclick="closeMenu()">Testimonials</a>
+    <a href="#contact" class="mobile-link" style="animation-delay: 0.33s" onclick="closeMenu()">Contact</a>
+    <a href="#contact" class="mobile-link cta-link" style="animation-delay: 0.4s" onclick="closeMenu()">Get Started <i class='bx bx-right-arrow-alt'></i></a>
+  </div>
+
+  <!-- =================== HERO =================== -->
+  <section id="home" class="dot-bg">
+    <div class="container">
+      <div class="hero-inner">
+
+        <!-- LEFT: image — set src="your-image.jpg" to your image path -->
+        <div class="hero-image-col" data-reveal="left">
+          <div class="hero-img-wrap">
+            <div class="img-placeholder" style="height:100%;">
+              <img src="" alt="Carelix hero image" />
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: content -->
+        <div class="hero-content-col" data-reveal="right">
+          <div class="hero-badge">
+            <i class='bx bxs-shield-plus'></i>
+            Nigeria's Unified Health Identity — Powered for Every Nigerian
+          </div>
+          <h1 class="hero-title">
+            One Identity.<br>
+            Every <span class="accent-blue">Hospital.</span><br>
+            <span class="accent-em">Across Nigeria.</span>
+          </h1>
+          <p class="hero-desc">
+            Register once. Carry your health record everywhere. Carelix gives every Nigerian citizen a unique health identity — an emergency code, a digital medical card, and seamless care no matter which hospital you walk into.
+          </p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">
+              <i class='bx bx-id-card'></i> Register Now
+            </a>
+            <a href="#about" class="btn btn-outline">
+              <i class='bx bx-info-circle'></i> Learn More
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <span class="stat-num">1M+</span>
+              <span class="stat-label">Citizens Enrolled</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">400+</span>
+              <span class="stat-label">Partner Hospitals</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">36</span>
+              <span class="stat-label">States Covered</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== ABOUT =================== -->
+  <section id="about" class="dot-bg">
+    <div class="container">
+      <div class="about-head" data-reveal>
+        <div class="section-eyebrow"><span class="dot"></span> What is Carelix</div>
+        <h2 class="section-title">Healthcare That <span>Knows You</span></h2>
+        <p class="section-subtitle">
+          Carelix eliminates the frustration of starting from scratch every time you visit a new hospital. Your health story travels with you — secure, accurate, and instantly accessible.
+        </p>
+      </div>
+      <div class="about-cards">
+        <div class="about-card glass" data-reveal style="transition-delay: 0.05s">
+          <div class="about-card-num">01</div>
+          <div class="about-card-icon blue">
+            <i class='bx bx-id-card'></i>
+          </div>
+          <h3>Digital Medical Card</h3>
+          <p>Receive a smart, verifiable digital health card that holds your full medical profile — accessible across any Carelix partner hospital in Nigeria.</p>
+        </div>
+        <div class="about-card glass" data-reveal style="transition-delay: 0.12s">
+          <div class="about-card-num">02</div>
+          <div class="about-card-icon emerald">
+            <i class='bx bx-qr'></i>
+          </div>
+          <h3>Unique Emergency Code</h3>
+          <p>Your personal emergency code lets first responders and doctors access your critical health data instantly — blood type, allergies, chronic conditions — when every second counts.</p>
+        </div>
+        <div class="about-card glass" data-reveal style="transition-delay: 0.19s">
+          <div class="about-card-num">03</div>
+          <div class="about-card-icon mixed">
+            <i class='bx bx-buildings'></i>
+          </div>
+          <h3>Connected Hospitals</h3>
+          <p>Hospitals subscribe to Carelix to manage their doctors, set card pricing, update patient records, and receive seamless payments — including via OPay and major gateways.</p>
+        </div>
+        <div class="about-card glass" data-reveal style="transition-delay: 0.26s">
+          <div class="about-card-num">04</div>
+          <div class="about-card-icon blue">
+            <i class='bx bx-lock-alt'></i>
+          </div>
+          <h3>Private & Secure</h3>
+          <p>Your medical data is encrypted and only accessible to authorized healthcare providers you visit. No data is shared without your knowledge or consent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== GOALS =================== -->
+  <section id="goals" class="dot-bg">
+    <div class="container">
+      <div data-reveal style="margin-bottom: 52px;">
+        <div class="section-eyebrow"><span class="dot"></span> Our Mission</div>
+        <h2 class="section-title">The Goals Driving <span>Carelix</span></h2>
+        <p class="section-subtitle">We are building towards a future where no Nigerian patient is treated as a stranger in a hospital.</p>
+      </div>
+      <div class="goals-inner">
+
+        <!-- LEFT: timeline -->
+        <div class="goals-timeline" data-reveal="left">
+          <div class="timeline-item">
+            <div class="timeline-left">
+              <div class="timeline-num">1</div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-card">
+              <h3><i class='bx bx-user-check'></i> Universal Health Registration</h3>
+              <p>Enable every Nigerian citizen to register once at any hospital and receive a permanent health identity — no repeat forms, no lost files, no confusion between facilities.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-left">
+              <div class="timeline-num">2</div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-card">
+              <h3><i class='bx bx-transfer-alt'></i> Seamless Record Portability</h3>
+              <p>Ensure medical records travel with the patient, not with the hospital. Your history — diagnoses, prescriptions, lab results — is visible to every doctor you authorize.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-left">
+              <div class="timeline-num">3</div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-card">
+              <h3><i class='bx bx-shield'></i> Emergency-Ready Healthcare</h3>
+              <p>Deploy emergency codes nationwide so that in crisis moments — accidents, cardiac events, unconscious patients — first responders can act fast with full knowledge of your medical history.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-left">
+              <div class="timeline-num">4</div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-card">
+              <h3><i class='bx bx-network-chart'></i> Hospital Ecosystem Integration</h3>
+              <p>Build a robust subscription model for hospitals — managing doctors, pricing, patient flows, and receiving payments — making Carelix an operating system for Nigerian healthcare.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-left">
+              <div class="timeline-num">5</div>
+            </div>
+            <div class="timeline-card">
+              <h3><i class='bx bx-trending-up'></i> Data-Driven Public Health</h3>
+              <p>Aggregate anonymized health data to help the Nigerian government and health agencies make evidence-based decisions, track disease patterns, and allocate resources effectively.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: image — set src="your-image.jpg" to your image path -->
+        <div class="goals-img-col" data-reveal="right">
+          <div class="goals-img-wrap">
+            <div class="img-placeholder" style="height:100%;">
+              <img src="" alt="Carelix goals image" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== TESTIMONIALS =================== -->
+  <section id="testimonials" class="dot-bg">
+    <div class="container">
+      <div class="testimonials-head" data-reveal>
+        <div class="section-eyebrow"><span class="dot"></span> Voices from Nigeria</div>
+        <h2 class="section-title">What Nigerians <span>Are Saying</span></h2>
+        <p class="section-subtitle">From Lagos to Kano, Nigerians are experiencing healthcare differently with Carelix.</p>
+      </div>
+      <div class="carousel-wrapper" data-reveal>
+        <div class="carousel-track" id="carouselTrack">
+          <div class="testi-card">
+            <div class="testi-stars"><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i></div>
+            <div class="testi-quote">"</div>
+            <p class="testi-text">I had an accident in Abuja while traveling from Enugu. The doctor scanned my Carelix emergency code and had my complete history in seconds. No need for frantic family calls. Carelix literally saved my life.</p>
+            <div class="testi-footer">
+              <div class="testi-avatar">AC</div>
+              <div class="testi-info">
+                <div class="name">Adaeze Chibuike</div>
+                <div class="role">Teacher, Enugu State</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i></div>
+            <div class="testi-quote">"</div>
+            <p class="testi-text">As a hospital administrator, Carelix changed how we operate completely. Patient registration that used to take 45 minutes now takes under 3. The subscription model and OPay integration make payments seamless.</p>
+            <div class="testi-footer">
+              <div class="testi-avatar">BM</div>
+              <div class="testi-info">
+                <div class="name">Dr. Babatunde Makinde</div>
+                <div class="role">Medical Director, Lagos</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i></div>
+            <div class="testi-quote">"</div>
+            <p class="testi-text">My mother has diabetes and hypertension. Moving between three hospitals for specialist care was a nightmare — different files, repeated tests. With Carelix, every doctor sees her full picture from day one.</p>
+            <div class="testi-footer">
+              <div class="testi-avatar">FA</div>
+              <div class="testi-info">
+                <div class="name">Fatimah Al-Hassan</div>
+                <div class="role">Civil Servant, Kano</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i></div>
+            <div class="testi-quote">"</div>
+            <p class="testi-text">The digital medical card is brilliant. I carry it on my phone — no physical cards to lose, no remembering blood type or allergies under pressure. Every Nigerian should have this.</p>
+            <div class="testi-footer">
+              <div class="testi-avatar">OO</div>
+              <div class="testi-info">
+                <div class="name">Olumide Ogunyemi</div>
+                <div class="role">Engineer, Port Harcourt</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i></div>
+            <div class="testi-quote">"</div>
+            <p class="testi-text">As a nurse, I've seen how much time is wasted collecting patient history. Carelix cuts that time in half. Better records mean better decisions. I recommend it to every health worker in Nigeria.</p>
+            <div class="testi-footer">
+              <div class="testi-avatar">NE</div>
+              <div class="testi-info">
+                <div class="name">Ngozi Eze</div>
+                <div class="role">Senior Nurse, Onitsha</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star'></i><i class='bx bxs-star-half'></i></div>
+            <div class="testi-quote">"</div>
+            <p class="testi-text">Our hospital just subscribed to Carelix. The onboarding was smooth, the doctor management dashboard is intuitive, and the patients love getting their digital cards. It's transformed how we serve our community.</p>
+            <div class="testi-footer">
+              <div class="testi-avatar">IS</div>
+              <div class="testi-info">
+                <div class="name">Ibrahim Suleiman</div>
+                <div class="role">Hospital COO, Kaduna</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-controls">
+        <button class="carousel-btn" id="prevBtn" onclick="moveCarousel(-1)"><i class='bx bx-chevron-left'></i></button>
+        <div class="carousel-dots" id="carouselDots"></div>
+        <button class="carousel-btn" id="nextBtn" onclick="moveCarousel(1)"><i class='bx bx-chevron-right'></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== CONTACT =================== -->
+  <section id="contact" class="dot-bg">
+    <div class="container">
+      <div class="contact-inner">
+
+        <!-- LEFT: image — set src="your-image.jpg" to your image path -->
+        <div class="contact-img-col" data-reveal="left">
+          <div class="contact-img-wrap">
+            <div class="img-placeholder" style="height:100%;">
+              <img src="" alt="Carelix contact image" />
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: form -->
+        <div class="contact-form-col" data-reveal="right">
+          <div class="form-box glass">
+            <div class="form-header">
+              <!-- Form icon — add src="your-icon.png" to the img tag to use your icon -->
+              <div class="circle-icon">
+                <i class='bx bx-envelope'></i>
+                <img src="" alt="" />
+              </div>
+              <div class="form-header-text">
+                <h3>Get in Touch</h3>
+                <p>Register your hospital or enroll as a citizen</p>
+              </div>
+            </div>
+
+            <!-- REPLACE "YOUR_FORM_ID" with your actual Formspree form ID -->
+            <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fname">First Name</label>
+                  <input type="text" id="fname" name="first_name" placeholder="Emeka" required />
+                </div>
+                <div class="form-group">
+                  <label for="lname">Last Name</label>
+                  <input type="text" id="lname" name="last_name" placeholder="Okafor" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="emeka@example.com" required />
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+234 801 234 5678" />
+              </div>
+              <div class="form-group">
+                <label for="category">I am a…</label>
+                <select id="category" name="category" required>
+                  <option value="">Select your category</option>
+                  <option value="citizen">Nigerian Citizen</option>
+                  <option value="hospital">Hospital / Clinic</option>
+                  <option value="doctor">Doctor / Health Professional</option>
+                  <option value="partner">Business Partner</option>
+                  <option value="press">Press / Media</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Tell us how we can help you…" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-emerald form-submit">
+                <i class='bx bx-send'></i> Send Message
+              </button>
+            </form>
+            <div class="form-loader" id="formLoader">
+              <div class="spinner"></div> Sending your message…
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== FOOTER =================== -->
+  <footer class="dot-bg">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <!-- Footer logo — add src="your-logo.png" to the img tag to use your logo -->
+            <div class="circle-icon" style="width:52px; height:52px;">
+              <i class='bx bx-plus-medical'></i>
+              <img src="" alt="" />
+            </div>
+            <span class="footer-wordmark">Carelix</span>
+          </div>
+          <p class="footer-desc">Nigeria's centralized healthcare identity system — connecting citizens and hospitals for better, faster, smarter care everywhere.</p>
+          <div class="footer-socials">
+            <a href="#" class="social-btn"><i class='bx bxl-twitter'></i></a>
+            <a href="#" class="social-btn"><i class='bx bxl-instagram'></i></a>
+            <a href="#" class="social-btn"><i class='bx bxl-linkedin'></i></a>
+            <a href="#" class="social-btn"><i class='bx bxl-facebook'></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Citizens</h4>
+          <ul>
+            <li><a href="#">Register Now</a></li>
+            <li><a href="#">Get Digital Card</a></li>
+            <li><a href="#">Emergency Code</a></li>
+            <li><a href="#">Find a Hospital</a></li>
+            <li><a href="#">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Hospitals</h4>
+          <ul>
+            <li><a href="#">Subscribe</a></li>
+            <li><a href="#">Manage Doctors</a></li>
+            <li><a href="#">Patient Records</a></li>
+            <li><a href="#">Payments (OPay)</a></li>
+            <li><a href="#">API Docs</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About Carelix</a></li>
+            <li><a href="#">News & Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        
+        <div class="footer-badge">
+          <i class='bx bxs-shield-plus'></i> NDPR Compliant · Secured by Carelix
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-box glass">
+      <div class="popup-icon"><i class='bx bxs-check-circle'></i></div>
+      <div class="popup-title">Message Sent!</div>
+      <p class="popup-msg">Thank you for reaching out. Our team will get back to you within 24 hours. Welcome to the Carelix community!</p>
+      <div class="popup-bar"><div class="popup-bar-fill" id="popupBarFill"></div></div>
+    </div>
+  </div>
+
+  <script src="../static/js/index.js"></script>
+</body>
+</html>
