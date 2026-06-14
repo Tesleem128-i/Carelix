@@ -8,53 +8,64 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../static/css/index.css" />
   <link rel="stylesheet" href="../static/css/dashboard.css" />
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
   <style>
-    /* ── TOPBAR HEADER ── */
-    .dash-topbar {
-      position: sticky;
-      top: 0;
-      z-index: 120;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 60px;
-      background: var(--glass-bg, rgba(255,255,255,0.85));
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border, rgba(0,0,0,0.08));
-      gap: 16px;
+    /* ── SIDEBAR USER / STATS (Hospital — Blue accent) ── */
+    .topbar-left { display: flex; align-items: center; gap: 12px; width: 100%; }
+
+    /* Hospital icon pill */
+    .topbar-avatar {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--blue-700));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1rem; flex-shrink: 0;
+      box-shadow: 0 0 0 3px var(--accent-blue-light);
     }
-    .topbar-left { display: flex; align-items: center; gap: 12px; }
-    .topbar-title { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 600; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .topbar-subtitle { font-size: 0.72rem; color: var(--text-muted); }
-    .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .topbar-stat { display: flex; flex-direction: column; align-items: center; padding: 6px 14px; background: var(--surface-1, rgba(0,0,0,0.04)); border-radius: 10px; min-width: 62px; }
-    .topbar-stat-val { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 700; font-size: 1.05rem; color: var(--text-primary); line-height: 1; }
-    .topbar-stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; }
-    .topbar-divider { width: 1px; height: 32px; background: var(--border, rgba(0,0,0,0.08)); }
-    @media (max-width: 640px) {
-      .topbar-stat { display: none; }
-      .topbar-divider { display: none; }
-      .topbar-title { max-width: 140px; }
+    .topbar-name-block { display: flex; flex-direction: column; min-width: 0; }
+    .topbar-title {
+      font-family: var(--ff-display,'Sora',sans-serif);
+      font-weight: 700; font-size: 0.95rem;
+      color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
     }
+    .topbar-subtitle { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .topbar-status-dot {
+      display: inline-flex; align-items: center; gap: 4px;
+      border-radius: 6px; padding: 1px 7px;
+      font-family: var(--ff-display); font-weight: 700; font-size: 0.68rem;
+      letter-spacing: 0.04em;
+    }
+    .topbar-status-dot.verified { background: var(--accent-emerald-light); color: var(--accent-emerald); }
+    .topbar-status-dot.pending  { background: rgba(245,158,11,0.12); color: #d97706; }
+
+    .sidebar-stats-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-top: auto; padding-top: 14px;
+    }
+    .topbar-stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 6px 8px; flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px; min-width: 0;
+    }
+    .topbar-stat-val {
+      font-family: var(--ff-display,'Sora',sans-serif);
+      font-weight: 800; font-size: 1.05rem;
+      color: var(--text-primary); line-height: 1;
+    }
+    .topbar-stat-lbl { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; }
 
     /* ── SIDEBAR MOBILE ── */
     .dash-sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 200;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 200;
     }
     .dash-sidebar-overlay.active { display: block; }
     @media (max-width: 768px) {
       .dash-sidebar {
-        position: fixed !important;
-        left: -260px !important;
-        top: 0;
-        height: 100vh;
-        z-index: 210;
+        position: fixed !important; left: -260px !important; top: 0;
+        height: 100vh; z-index: 210;
         transition: left 0.25s ease;
         box-shadow: 4px 0 24px rgba(0,0,0,0.18);
       }
@@ -66,28 +77,21 @@
     /* ── ENROLLMENT SECTION ── */
     .enroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
     .enroll-card {
-      border: 1px solid var(--border, rgba(0,0,0,0.08));
-      border-radius: 14px;
-      padding: 18px 20px;
-      background: var(--surface-1, rgba(0,0,0,0.02));
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      border: 1px solid var(--border-card); border-radius: 14px;
+      padding: 18px 20px; background: var(--bg-card);
+      display: flex; flex-direction: column; gap: 6px;
     }
     .enroll-card-name { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
     .enroll-card-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
     .enroll-card-meta span { display: flex; align-items: center; gap: 4px; }
     .enroll-card-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+    /* Hospital ID share box */
     .hospital-id-box {
       background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-      border-radius: 16px;
-      padding: 22px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 24px;
-      color: #fff;
+      border-radius: 16px; padding: 22px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 24px; color: #fff;
     }
     .hospital-id-box-label { font-size: 0.78rem; opacity: 0.85; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
     .hospital-id-box-code { font-family: var(--ff-display,'Sora',sans-serif); font-size: 1.6rem; font-weight: 800; letter-spacing: 0.06em; }
@@ -96,48 +100,30 @@
 
     /* ── ALERT TOGGLE IN SEARCH ── */
     .alert-toggle-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface-1, rgba(0,0,0,0.03));
-      border: 1px solid var(--border, rgba(0,0,0,0.08));
-      border-radius: 12px;
-      padding: 14px 18px;
-      margin-top: 18px;
-      gap: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg-secondary); border: 1px solid var(--border-card);
+      border-radius: 12px; padding: 14px 18px; margin-top: 18px; gap: 12px;
     }
     .alert-toggle-text { flex: 1; }
     .alert-toggle-text strong { display: block; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 2px; }
     .alert-toggle-text span { font-size: 0.76rem; color: var(--text-muted); }
-    /* Toggle switch */
     .toggle-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; inset: 0; background: #cbd5e1; border-radius: 26px; cursor: pointer; transition: background 0.2s;
-    }
-    .toggle-slider:before {
-      content: ''; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px;
-      background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    }
+    .toggle-slider { position: absolute; inset: 0; background: #cbd5e1; border-radius: 26px; cursor: pointer; transition: background 0.2s; }
+    .toggle-slider:before { content: ''; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
     .toggle-switch input:checked + .toggle-slider { background: #22c55e; }
     .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-    /* ── ENROLLED PATIENTS TAB ── */
-    .enrolled-empty-cta {
-      text-align: center;
-      padding: 40px 20px;
-    }
+    /* ── ENROLLED PATIENTS ── */
+    .enrolled-empty-cta { text-align: center; padding: 40px 20px; }
     .enrolled-empty-cta i { font-size: 2.8rem; color: var(--text-muted); display: block; margin-bottom: 12px; }
     .enrolled-empty-cta p { color: var(--text-muted); margin-bottom: 16px; }
+
     .hospital-card-preview {
-      border: 1.5px solid rgba(14,165,233,0.3);
-      border-radius: 16px;
+      border: 1.5px solid rgba(14,165,233,0.3); border-radius: 16px;
       padding: 20px 24px;
       background: linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(99,102,241,0.06) 100%);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
     }
     .hospital-card-preview-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #0ea5e9, #6366f1); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem; flex-shrink: 0; }
     .hospital-card-preview-info { flex: 1; min-width: 0; }
@@ -150,10 +136,9 @@
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
       color: #d97706; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600;
-      margin-top: 10px;
     }
 
-    /* ── MOBILE RESPONSIVENESS ── */
+    /* ── MOBILE ── */
     @media (max-width: 480px) {
       .stat-grid { grid-template-columns: 1fr 1fr; }
       .dash-form-grid { grid-template-columns: 1fr; }
@@ -196,41 +181,6 @@
     </div>
   </nav>
 
-  <!-- STICKY TOPBAR HEADER -->
-  <div class="dash-topbar">
-    <div class="topbar-left">
-      <button class="dash-mobile-toggle-inline" id="sidebarToggleInline" onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text-primary);display:none;">
-        <i class='bx bx-menu'></i>
-      </button>
-      <div>
-        <div class="topbar-title">{{ hospital.name }}</div>
-        <div class="topbar-subtitle">
-          {% if hospital.verified %}
-            <span style="color:#22c55e;">● Verified</span>
-          {% else %}
-            <span style="color:#f59e0b;">● Pending Verification</span>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-stat">
-        <div class="topbar-stat-val">{{ enrolled_patients_count }}</div>
-        <div class="topbar-stat-lbl">Enrolled</div>
-      </div>
-      <div class="topbar-divider"></div>
-      <div class="topbar-stat">
-        <div class="topbar-stat-val">{{ appointments_today_count }}</div>
-        <div class="topbar-stat-lbl">Today</div>
-      </div>
-      <div class="topbar-divider"></div>
-      <div class="topbar-stat">
-        <div class="topbar-stat-val">{{ doctors|length }}</div>
-        <div class="topbar-stat-lbl">Doctors</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Sidebar overlay (mobile) -->
   <div class="dash-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
@@ -239,19 +189,8 @@
     <!-- SIDEBAR -->
     <aside class="dash-sidebar" id="dashSidebar">
       <div class="dash-sidebar-user">
-        <div class="circle-icon blue-icon">
-          <i class='bx bx-buildings'></i>
-        </div>
-        <div>
-          <div class="dash-sidebar-user-name">{{ hospital.name }}</div>
-          <div class="dash-sidebar-user-sub">
-            {% if hospital.verified %}
-              <span class="badge badge-verified">Verified</span>
-            {% else %}
-              <span class="badge badge-unverified">Pending</span>
-            {% endif %}
-          </div>
-        </div>
+        
+        
       </div>
 
       <nav class="dash-nav">
@@ -284,12 +223,29 @@
           <i class='bx bx-log-out'></i> Logout
         </a>
       </nav>
+
+      <div class="dash-nav-divider"></div>
+
+      <div class="sidebar-stats-row">
+        <div class="topbar-stat">
+          <div class="topbar-stat-val">{{ enrolled_patients_count }}</div>
+          <div class="topbar-stat-lbl">Enrolled</div>
+        </div>
+        <div class="topbar-stat">
+          <div class="topbar-stat-val">{{ appointments_today_count }}</div>
+          <div class="topbar-stat-lbl">Today</div>
+        </div>
+        <div class="topbar-stat">
+          <div class="topbar-stat-val">{{ doctors|length }}</div>
+          <div class="topbar-stat-lbl">Doctors</div>
+        </div>
+      </div>
     </aside>
 
     <!-- MAIN -->
     <main class="dash-main" data-panel-group="hospital">
 
-      <!-- ===================== OVERVIEW ===================== -->
+      <!-- ═══════════════ OVERVIEW ═══════════════ -->
       <section class="dash-tab-panel active" data-panel="overview">
         <div class="dash-header">
           <h1>Dashboard Overview</h1>
@@ -320,7 +276,7 @@
         </div>
 
         {% if not hospital.verified %}
-        <div class="dash-section glass" style="border: 1px solid rgba(245,158,11,0.3);">
+        <div class="dash-section glass" style="border: 1px solid rgba(245,158,11,0.3); margin-bottom: 24px;">
           <div class="dash-section-header">
             <h2><i class='bx bx-time-five' style="color:#f59e0b;"></i> Verification Pending</h2>
           </div>
@@ -328,7 +284,7 @@
         </div>
         {% endif %}
 
-        <!-- Hospital ID box so staff can share it with patients -->
+        <!-- Hospital ID share box -->
         <div class="hospital-id-box">
           <div>
             <div class="hospital-id-box-label">Your Hospital ID — Share with patients to enrol</div>
@@ -339,6 +295,7 @@
           </button>
         </div>
 
+        <!-- Today's appointments preview -->
         <div class="dash-section glass">
           <div class="dash-section-header">
             <h2><i class='bx bx-calendar-check'></i> Today's Appointments</h2>
@@ -372,14 +329,14 @@
         </div>
       </section>
 
-      <!-- ===================== ENROLLED PATIENTS ===================== -->
+      <!-- ═══════════════ ENROLLED PATIENTS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="enrolled">
         <div class="dash-header">
           <h1>Enrolled Patients</h1>
           <p>Patients who have registered under {{ hospital.name }} using your Hospital ID.</p>
         </div>
 
-        <!-- Card price & hospital card info -->
+        <!-- Card price info -->
         <div class="dash-section glass" style="margin-bottom: 24px;">
           <div class="dash-section-header">
             <h2><i class='bx bx-credit-card'></i> Hospital Card</h2>
@@ -445,7 +402,7 @@
         </div>
       </section>
 
-      <!-- ===================== EMERGENCY SEARCH ===================== -->
+      <!-- ═══════════════ EMERGENCY SEARCH ═══════════════ -->
       <section class="dash-tab-panel" data-panel="search">
         <div class="dash-header">
           <h1>Emergency Profile Search</h1>
@@ -458,7 +415,7 @@
             <button type="submit" class="btn btn-primary"><i class='bx bx-search-alt-2'></i> Search</button>
           </form>
 
-          <!-- Alert toggle — hospital staff chooses whether to notify next of kin -->
+          <!-- Alert toggle -->
           <div class="alert-toggle-bar">
             <div class="alert-toggle-text">
               <strong><i class='bx bx-mail-send' style="margin-right:4px;"></i> Notify Emergency Contact</strong>
@@ -541,7 +498,7 @@
         </div>
       </section>
 
-      <!-- ===================== APPOINTMENTS ===================== -->
+      <!-- ═══════════════ APPOINTMENTS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="appointments">
         <div class="dash-header">
           <h1>Appointments</h1>
@@ -598,7 +555,7 @@
         </div>
       </section>
 
-      <!-- ===================== DOCTORS ===================== -->
+      <!-- ═══════════════ DOCTORS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="doctors">
         <div class="dash-header">
           <h1>Doctor Management</h1>
@@ -690,46 +647,47 @@
         </div>
       </section>
 
-      <!-- ===================== PATIENT RECORDS ===================== -->
+      <!-- ═══════════════ PATIENT RECORDS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="records">
         <div class="dash-header">
           <h1>Patient Records</h1>
-          <p>Medical records added for patients enrolled at your hospital.</p>
+          <p>Medical records you've added for patients at {{ hospital.name }}.</p>
         </div>
 
         <div class="dash-section glass">
           {% if medical_records %}
-            {% for rec in medical_records %}
-            <div class="record-card">
-              <div class="record-card-head">
-                <strong>{{ rec.patient.full_name }}</strong>
-                <span class="text-muted">{{ rec.visit_date.strftime('%d %b %Y') }}</span>
-              </div>
-              {% if rec.doctor %}
-              <div class="record-card-row"><span>Doctor:</span>{{ rec.doctor.name }}</div>
-              {% endif %}
-              <div class="record-card-row"><span>Diagnosis:</span>{{ rec.diagnosis or '—' }}</div>
-              <div class="record-card-row"><span>Prescription:</span>{{ rec.prescription or '—' }}</div>
-              <div class="record-card-row"><span>Test Results:</span>{{ rec.test_results or '—' }}</div>
-              {% if rec.notes %}
-              <div class="record-card-row"><span>Notes:</span>{{ rec.notes }}</div>
-              {% endif %}
-            </div>
-            {% endfor %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Visit Date</th><th>Patient</th><th>Doctor</th><th>Diagnosis</th><th>Prescription</th></tr>
+              </thead>
+              <tbody>
+                {% for rec in medical_records %}
+                <tr>
+                  <td>{{ rec.visit_date.strftime('%d %b %Y') }}</td>
+                  <td>{{ rec.patient.full_name }}</td>
+                  <td>{{ rec.doctor.name if rec.doctor else '—' }}</td>
+                  <td class="wrap">{{ rec.diagnosis or '—' }}</td>
+                  <td class="wrap">{{ rec.prescription or '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
           {% else %}
           <div class="dash-empty">
             <i class='bx bx-file-blank'></i>
-            No medical records added yet. Search a patient's emergency code to add one.
+            No patient records yet. Add records after an emergency profile search.
           </div>
           {% endif %}
         </div>
       </section>
 
-      <!-- ===================== ALERT LOGS ===================== -->
+      <!-- ═══════════════ ALERT LOGS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="alerts">
         <div class="dash-header">
           <h1>Alert Logs</h1>
-          <p>Every email alert sent to a patient's emergency contact when their profile was accessed.</p>
+          <p>Every emergency contact notification sent from this hospital's searches.</p>
         </div>
 
         <div class="dash-section glass">
@@ -760,7 +718,7 @@
         </div>
       </section>
 
-      <!-- ===================== SETTINGS ===================== -->
+      <!-- ═══════════════ SETTINGS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="settings">
         <div class="dash-header">
           <h1>Hospital Settings</h1>
@@ -809,12 +767,12 @@
     </main>
   </div>
 
-  <!-- Mobile sidebar toggle FAB -->
+  <!-- Mobile sidebar FAB -->
   <button class="dash-mobile-toggle" id="sidebarToggleBtn" onclick="toggleSidebar()">
     <i class='bx bx-menu'></i>
   </button>
 
-  <!-- ===================== ADD MEDICAL RECORD MODAL ===================== -->
+  <!-- ADD MEDICAL RECORD MODAL -->
   {% if searched_patient %}
   <div class="modal-overlay" id="addRecordModal">
     <div class="modal-box glass">
@@ -867,7 +825,7 @@
   <script src="../static/js/auth.js"></script>
   <script src="../static/js/dashboard.js"></script>
   <script>
-    // Alert toggle label
+    // Alert toggle
     const alertToggle = document.getElementById('alertToggle');
     const alertState  = document.getElementById('alertToggleState');
     if (alertToggle && alertState) {
@@ -875,21 +833,17 @@
         if (this.checked) {
           alertState.textContent = 'ON';
           alertState.style.color = '#22c55e';
-          document.getElementById('alertToggleNote').lastChild.textContent = ' — next of kin will be notified.';
         } else {
           alertState.textContent = 'OFF';
           alertState.style.color = '#ef4444';
-          document.getElementById('alertToggleNote').lastChild.textContent = ' — next of kin will NOT be notified.';
         }
       });
     }
 
-    // Mobile sidebar: show inline toggle button
+    // Mobile sidebar
     function closeSidebarMobile() {
       if (window.innerWidth <= 768) toggleSidebar();
     }
-
-    // Override toggleSidebar to also handle overlay
     function toggleSidebar() {
       const sidebar  = document.getElementById('dashSidebar');
       const overlay  = document.getElementById('sidebarOverlay');
@@ -897,8 +851,6 @@
       sidebar.classList.toggle('open', !isOpen);
       if (overlay) overlay.classList.toggle('active', !isOpen);
     }
-
-    // Show inline toggle on mobile
     (function() {
       const inlineBtn = document.getElementById('sidebarToggleInline');
       if (inlineBtn) {

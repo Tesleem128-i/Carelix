@@ -8,53 +8,64 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../static/css/index.css" />
   <link rel="stylesheet" href="../static/css/dashboard.css" />
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
   <style>
-    /* ── TOPBAR HEADER ── */
-    .dash-topbar {
-      position: sticky;
-      top: 0;
-      z-index: 120;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 60px;
-      background: var(--glass-bg, rgba(255,255,255,0.85));
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border, rgba(0,0,0,0.08));
-      gap: 16px;
+    /* ── SIDEBAR USER / STATS (moved from topbar) ── */
+    .topbar-left { display: flex; align-items: center; gap: 12px; width: 100%; }
+
+    /* Patient avatar pill */
+    .topbar-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-emerald), var(--emerald-700));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem; font-weight: 700; flex-shrink: 0;
+      box-shadow: 0 0 0 3px var(--accent-emerald-light);
     }
-    .topbar-left { display: flex; align-items: center; gap: 12px; }
-    .topbar-title { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 600; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-    .topbar-subtitle { font-size: 0.72rem; color: var(--text-muted); }
-    .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .topbar-stat { display: flex; flex-direction: column; align-items: center; padding: 6px 14px; background: var(--surface-1, rgba(0,0,0,0.04)); border-radius: 10px; min-width: 62px; }
-    .topbar-stat-val { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 700; font-size: 1.05rem; color: var(--text-primary); line-height: 1; }
-    .topbar-stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; }
-    .topbar-divider { width: 1px; height: 32px; background: var(--border, rgba(0,0,0,0.08)); }
-    @media (max-width: 640px) {
-      .topbar-stat { display: none; }
-      .topbar-divider { display: none; }
-      .topbar-title { max-width: 140px; }
+    .topbar-name-block { display: flex; flex-direction: column; min-width: 0; }
+    .topbar-title {
+      font-family: var(--ff-display,'Sora',sans-serif);
+      font-weight: 700; font-size: 0.95rem;
+      color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
     }
+    .topbar-subtitle { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .topbar-code-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--accent-emerald-light);
+      color: var(--accent-emerald);
+      border-radius: 6px; padding: 1px 7px;
+      font-family: var(--ff-display); font-weight: 700; font-size: 0.68rem;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-stats-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-top: auto; padding-top: 14px;
+    }
+    .topbar-stat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 6px 8px; flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px; min-width: 0;
+    }
+    .topbar-stat-val {
+      font-family: var(--ff-display,'Sora',sans-serif);
+      font-weight: 800; font-size: 1.05rem;
+      color: var(--text-primary); line-height: 1;
+    }
+    .topbar-stat-lbl { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; }
 
     /* ── SIDEBAR MOBILE ── */
     .dash-sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 200;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 200;
     }
     .dash-sidebar-overlay.active { display: block; }
     @media (max-width: 768px) {
       .dash-sidebar {
-        position: fixed !important;
-        left: -260px !important;
-        top: 0;
-        height: 100vh;
-        z-index: 210;
+        position: fixed !important; left: -260px !important; top: 0;
+        height: 100vh; z-index: 210;
         transition: left 0.25s ease;
         box-shadow: 4px 0 24px rgba(0,0,0,0.18);
       }
@@ -63,59 +74,84 @@
       .dash-mobile-toggle { display: flex !important; }
     }
 
-    /* ── HOSPITAL REGISTRATION SECTION ── */
+    /* ── HOSPITAL SEARCH & REGISTER ── */
+    .hospital-search-box {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-card);
+      border-radius: 20px;
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .hospital-search-box h3 {
+      font-family: var(--ff-display,'Sora',sans-serif);
+      font-size: 1rem; font-weight: 700;
+      color: var(--text-primary); margin: 0 0 4px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hospital-search-box h3 i { color: var(--accent-emerald); }
+    .hospital-search-box p { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 14px; }
+
+    .hosp-search-input-row {
+      display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+    }
+    .hosp-search-input-row .dash-form-group { flex: 1; min-width: 200px; margin: 0; }
+
+    /* Live search results dropdown */
+    .hosp-search-results {
+      margin-top: 12px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .hosp-result-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 16px; border-radius: 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-card);
+      flex-wrap: wrap; gap: 10px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .hosp-result-item:hover { border-color: var(--accent-emerald); background: var(--accent-emerald-light); }
+    .hosp-result-info { flex: 1; min-width: 0; }
+    .hosp-result-name { font-weight: 700; font-size: 0.92rem; color: var(--text-primary); }
+    .hosp-result-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .hosp-result-meta span { display: flex; align-items: center; gap: 4px; }
+    .hosp-result-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--accent-emerald-light); color: var(--accent-emerald);
+      border-radius: 8px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700;
+    }
+    .hosp-search-empty {
+      text-align: center; padding: 20px;
+      color: var(--text-muted); font-size: 0.85rem;
+    }
+    .hosp-search-empty i { font-size: 1.8rem; display: block; margin-bottom: 6px; opacity: 0.5; }
+
+
+    /* ── MY HOSPITALS GRID ── */
     .my-hospitals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
     .my-hospital-card {
-      border: 1.5px solid var(--border, rgba(0,0,0,0.08));
-      border-radius: 16px;
-      padding: 20px;
-      background: var(--surface-1, rgba(0,0,0,0.02));
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: relative;
+      border: 1.5px solid var(--border-card);
+      border-radius: 16px; padding: 20px;
+      background: var(--bg-card);
+      display: flex; flex-direction: column; gap: 8px; position: relative;
+      transition: border-color 0.2s;
     }
-    .my-hospital-card.has-card { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.04); }
+    .my-hospital-card.has-card { border-color: rgba(16,185,129,0.35); background: var(--accent-emerald-light); }
     .my-hospital-card-name { font-weight: 700; font-size: 0.98rem; color: var(--text-primary); }
     .my-hospital-card-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
     .my-hospital-card-badge {
       display: inline-flex; align-items: center; gap: 5px;
-      border-radius: 8px; padding: 4px 10px; font-size: 0.73rem; font-weight: 600;
-      width: fit-content;
+      border-radius: 8px; padding: 4px 10px; font-size: 0.73rem; font-weight: 600; width: fit-content;
     }
-    .my-hospital-card-badge.active { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .my-hospital-card-badge.active { background: rgba(16,185,129,0.12); color: #059669; }
     .my-hospital-card-badge.pending { background: rgba(245,158,11,0.12); color: #d97706; }
     .my-hospital-card-badge.no-card { background: rgba(148,163,184,0.12); color: #64748b; }
 
-    .enroll-form-box {
-      background: var(--surface-1, rgba(0,0,0,0.02));
-      border: 1.5px dashed var(--border, rgba(0,0,0,0.12));
-      border-radius: 16px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .enroll-form-box h3 { font-family: var(--ff-display,'Sora',sans-serif); font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0; }
-    .enroll-form-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-    .enroll-form-row .dash-form-group { flex: 1; min-width: 180px; margin: 0; }
-
-    /* ── HOSPITAL CARD (payment) ── */
-    .hcard-offer {
-      border: 1.5px solid rgba(14,165,233,0.3);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-top: 12px;
-    }
+    /* ── HOSPITAL CARD OFFER ── */
+    .hcard-offer { border: 1.5px solid rgba(14,165,233,0.3); border-radius: 16px; overflow: hidden; margin-top: 12px; }
     .hcard-offer-header {
       background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-      padding: 18px 22px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
+      padding: 18px 22px; color: #fff;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     }
     .hcard-offer-header-left h4 { margin: 0; font-family: var(--ff-display,'Sora',sans-serif); font-size: 1rem; font-weight: 700; }
     .hcard-offer-header-left p { margin: 4px 0 0; font-size: 0.78rem; opacity: 0.85; }
@@ -132,7 +168,7 @@
     }
     .payment-coming-soon i { font-size: 1.3rem; flex-shrink: 0; }
 
-    /* ── BOOKING RESTRICTION NOTICE ── */
+    /* ── BOOKING RESTRICTION ── */
     .booking-locked-notice {
       display: flex; align-items: flex-start; gap: 12px;
       background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.2);
@@ -147,7 +183,7 @@
       .stat-grid { grid-template-columns: 1fr 1fr; }
       .dash-form-grid { grid-template-columns: 1fr; }
       .dash-form-group.full { grid-column: 1; }
-      .enroll-form-row { flex-direction: column; }
+      .hosp-search-input-row { flex-direction: column; }
       .hcard-offer-header { flex-direction: column; }
       .my-hospitals-grid { grid-template-columns: 1fr; }
     }
@@ -166,7 +202,7 @@
     {% endif %}
   {% endwith %}
 
-  <!-- NAV -->
+  <!-- NAV (brand only — all controls moved to topbar) -->
   <nav>
     <div class="nav-inner">
       <a href="/" class="nav-brand">
@@ -183,37 +219,6 @@
     </div>
   </nav>
 
-  <!-- STICKY TOPBAR HEADER -->
-  <div class="dash-topbar">
-    <div class="topbar-left">
-      <button id="sidebarToggleInline" onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text-primary);display:none;">
-        <i class='bx bx-menu'></i>
-      </button>
-      <div>
-        <div class="topbar-title">{{ patient.full_name }}</div>
-        <div class="topbar-subtitle">
-          Code: <strong>{{ patient.emergency_code }}</strong>
-        </div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-stat">
-        <div class="topbar-stat-val">{{ upcoming_count }}</div>
-        <div class="topbar-stat-lbl">Upcoming</div>
-      </div>
-      <div class="topbar-divider"></div>
-      <div class="topbar-stat">
-        <div class="topbar-stat-val">{{ records|length }}</div>
-        <div class="topbar-stat-lbl">Records</div>
-      </div>
-      <div class="topbar-divider"></div>
-      <div class="topbar-stat">
-        <div class="topbar-stat-val">{{ profile_completeness }}%</div>
-        <div class="topbar-stat-lbl">Profile</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Sidebar overlay (mobile) -->
   <div class="dash-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
@@ -222,13 +227,7 @@
     <!-- SIDEBAR -->
     <aside class="dash-sidebar" id="dashSidebar">
       <div class="dash-sidebar-user">
-        <div class="circle-icon emerald-icon">
-          <i class='bx bx-user-circle'></i>
-        </div>
-        <div>
-          <div class="dash-sidebar-user-name">{{ patient.full_name }}</div>
-          <div class="dash-sidebar-user-sub">{{ patient.emergency_code }}</div>
-        </div>
+        
       </div>
 
       <nav class="dash-nav">
@@ -258,12 +257,29 @@
           <i class='bx bx-log-out'></i> Logout
         </a>
       </nav>
+
+      <div class="dash-nav-divider"></div>
+
+      <div class="sidebar-stats-row">
+        <div class="topbar-stat">
+          <div class="topbar-stat-val">{{ upcoming_count }}</div>
+          <div class="topbar-stat-lbl">Upcoming</div>
+        </div>
+        <div class="topbar-stat">
+          <div class="topbar-stat-val">{{ records|length }}</div>
+          <div class="topbar-stat-lbl">Records</div>
+        </div>
+        <div class="topbar-stat">
+          <div class="topbar-stat-val">{{ profile_completeness }}%</div>
+          <div class="topbar-stat-lbl">Profile</div>
+        </div>
+      </div>
     </aside>
 
     <!-- MAIN -->
     <main class="dash-main" data-panel-group="patient">
 
-      <!-- ===================== OVERVIEW ===================== -->
+      <!-- ═══════════════ OVERVIEW ═══════════════ -->
       <section class="dash-tab-panel active" data-panel="overview">
         <div class="dash-header">
           <h1>Welcome, {{ patient.full_name.split(' ')[0] }} 👋</h1>
@@ -325,7 +341,7 @@
           {% if my_hospitals %}
           <div style="display:flex; flex-direction:column; gap:10px;">
             {% for h in my_hospitals %}
-            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--surface-1,rgba(0,0,0,0.03)); border-radius:12px; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--bg-secondary); border:1px solid var(--border-card); border-radius:12px; flex-wrap:wrap; gap:8px;">
               <div>
                 <div style="font-weight:600; font-size:0.9rem;">{{ h.name }}</div>
                 <div style="font-size:0.76rem; color:var(--text-muted);">{{ h.address }}</div>
@@ -342,7 +358,7 @@
           <div class="dash-empty">
             <i class='bx bx-building-house'></i>
             You haven't registered under any hospital yet.
-            <a href="#hospitals" onclick="switchTab('hospitals','patient')" style="display:inline-flex; align-items:center; gap:6px; margin-top:12px;" class="btn btn-outline btn-sm">Register now</a>
+            <a href="#hospitals" onclick="switchTab('hospitals','patient')" style="display:inline-flex; align-items:center; gap:6px; margin-top:12px;" class="btn btn-outline btn-sm">Find a hospital</a>
           </div>
           {% endif %}
         </div>
@@ -380,32 +396,47 @@
         </div>
       </section>
 
-      <!-- ===================== MY HOSPITALS ===================== -->
+      <!-- ═══════════════ MY HOSPITALS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="hospitals">
         <div class="dash-header">
           <h1>My Hospitals</h1>
-          <p>Register under hospitals using their Hospital ID. You must be registered at a hospital to book appointments there.</p>
+          <p>Search for a hospital by name and register under it to get access to appointments and your hospital card.</p>
         </div>
 
-        <!-- Enrol under a hospital -->
-        <div class="enroll-form-box" style="margin-bottom: 24px;">
-          <h3><i class='bx bx-plus-circle' style="margin-right:6px;"></i> Register Under a Hospital</h3>
-          <p class="text-muted" style="font-size:0.82rem; margin:0;">Ask the hospital staff for their <strong>Hospital ID</strong>, then enter it below to enrol.</p>
-          <form method="POST" action="/patient/enroll-hospital">
-            <div class="enroll-form-row">
-              <div class="dash-form-group">
-                <label>Hospital ID <span style="color:#ef4444">*</span></label>
-                <input type="number" name="hospital_id" placeholder="e.g. 12" required min="1" />
-              </div>
-              <button type="submit" class="btn btn-emerald" style="height:46px; white-space:nowrap;">
-                <i class='bx bx-log-in-circle'></i> Enrol
-              </button>
+        <!-- ── Hospital Search Box ── -->
+        <div class="hospital-search-box" style="margin-bottom: 24px;">
+          <h3><i class='bx bx-search-alt'></i> Find &amp; Register Under a Hospital</h3>
+          <p>Search by hospital name to find and enrol under it.</p>
+
+          <!-- Name search -->
+          <div class="hosp-search-input-row">
+            <div class="dash-form-group">
+              <label>Search by Hospital Name</label>
+              <input type="text" id="hospitalSearchInput" placeholder="e.g. Lagos General Hospital…" autocomplete="off"
+                oninput="searchHospitals(this.value)" />
             </div>
+            <button type="button" class="btn btn-primary" onclick="searchHospitals(document.getElementById('hospitalSearchInput').value)" style="height:46px; white-space:nowrap;">
+              <i class='bx bx-search'></i> Search
+            </button>
+          </div>
+
+          <!-- Live results -->
+          <div class="hosp-search-results" id="hospitalSearchResults" style="display:none;"></div>
+
+          <!-- Hidden form used by enrollHospital() JS function -->
+          <form method="POST" action="/patient/enroll-hospital" id="enrollHospitalForm" style="display:none;">
+            <input type="number" name="hospital_id" id="enrollHospitalIdInput" />
           </form>
         </div>
 
         <!-- Registered hospitals list -->
         {% if my_hospitals %}
+        <div class="dash-section-header" style="margin-bottom: 14px;">
+          <h2 style="font-family:var(--ff-display);font-weight:700;font-size:1.1rem; display:flex;align-items:center;gap:8px;">
+            <i class='bx bx-buildings' style="color:var(--accent-emerald);"></i> Registered Hospitals
+          </h2>
+          <span class="badge badge-completed">{{ my_hospitals|length }} enrolled</span>
+        </div>
         <div class="my-hospitals-grid">
           {% for h in my_hospitals %}
           <div class="my-hospital-card {% if h.card_status == 'active' %}has-card{% endif %}">
@@ -457,13 +488,13 @@
         <div class="dash-section glass">
           <div class="dash-empty">
             <i class='bx bx-building-house'></i>
-            You haven't registered under any hospital yet. Enter a Hospital ID above to get started.
+            You haven't registered under any hospital yet. Search above to get started.
           </div>
         </div>
         {% endif %}
       </section>
 
-      <!-- ===================== APPOINTMENTS ===================== -->
+      <!-- ═══════════════ APPOINTMENTS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="appointments">
         <div class="dash-header">
           <h1>My Appointments</h1>
@@ -511,7 +542,7 @@
         </div>
       </section>
 
-      <!-- ===================== BOOK APPOINTMENT ===================== -->
+      <!-- ═══════════════ BOOK APPOINTMENT ═══════════════ -->
       <section class="dash-tab-panel" data-panel="book">
         <div class="dash-header">
           <h1>Book an Appointment</h1>
@@ -519,13 +550,12 @@
         </div>
 
         {% if not my_hospitals %}
-        <!-- Not registered anywhere — lock booking -->
         <div class="dash-section glass">
           <div class="booking-locked-notice">
             <i class='bx bx-lock-alt'></i>
             <div class="booking-locked-notice-text">
               <strong>You must register under a hospital first</strong>
-              <span>You can only book appointments at hospitals you're enrolled in. Go to <a href="#hospitals" onclick="switchTab('hospitals','patient')" style="color:#6366f1;font-weight:600;">My Hospitals</a> to register using a Hospital ID.</span>
+              <span>You can only book appointments at hospitals you're enrolled in. Go to <a href="#hospitals" onclick="switchTab('hospitals','patient')" style="color:#6366f1;font-weight:600;">My Hospitals</a> to find and register.</span>
             </div>
           </div>
         </div>
@@ -596,7 +626,7 @@
         {% endif %}
       </section>
 
-      <!-- ===================== MEDICAL RECORDS ===================== -->
+      <!-- ═══════════════ MEDICAL RECORDS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="records">
         <div class="dash-header">
           <h1>Medical Records</h1>
@@ -631,7 +661,7 @@
         </div>
       </section>
 
-      <!-- ===================== PROFILE ===================== -->
+      <!-- ═══════════════ PROFILE ═══════════════ -->
       <section class="dash-tab-panel" data-panel="profile">
         <div class="dash-header">
           <h1>My Profile</h1>
@@ -713,7 +743,7 @@
         </div>
       </section>
 
-      <!-- ===================== EMERGENCY ALERTS ===================== -->
+      <!-- ═══════════════ EMERGENCY ALERTS ═══════════════ -->
       <section class="dash-tab-panel" data-panel="alerts">
         <div class="dash-header">
           <h1>Emergency Profile Alerts</h1>
@@ -751,7 +781,7 @@
     </main>
   </div>
 
-  <!-- Mobile sidebar toggle FAB -->
+  <!-- Mobile sidebar FAB -->
   <button class="dash-mobile-toggle" id="sidebarToggleBtn" onclick="toggleSidebar()">
     <i class='bx bx-menu'></i>
   </button>
@@ -759,14 +789,7 @@
   <script src="../static/js/auth.js"></script>
   <script src="../static/js/dashboard.js"></script>
   <script>
-    // Build a doctor map by hospital_id for the dynamic select
-    const doctorsByHospital = {
-      {% for d in doctors %}
-      {% if loop.first %}{% endif %}
-      "{{ d.hospital_id }}": (doctorsByHospital && doctorsByHospital["{{ d.hospital_id }}"]) ? doctorsByHospital["{{ d.hospital_id }}"] : [],
-      {% endfor %}
-    };
-    // Rebuild properly
+    // ── Doctor map by hospital_id ──
     const _docMap = {};
     {% for d in doctors %}
     if (!_docMap["{{ d.hospital_id }}"]) _docMap["{{ d.hospital_id }}"] = [];
@@ -786,7 +809,68 @@
       }
     }
 
-    // Mobile sidebar
+    // ── Hospital name search (calls /patient/search-hospitals?q=...) ──
+    let _searchTimeout = null;
+    function searchHospitals(query) {
+      clearTimeout(_searchTimeout);
+      const resultsEl = document.getElementById('hospitalSearchResults');
+      query = query.trim();
+      if (query.length < 2) {
+        resultsEl.style.display = 'none';
+        resultsEl.innerHTML = '';
+        return;
+      }
+      // Debounce 300ms
+      _searchTimeout = setTimeout(function() {
+        resultsEl.style.display = 'flex';
+        resultsEl.innerHTML = '<div class="hosp-search-empty"><i class=\'bx bx-loader-alt bx-spin\'></i>Searching…</div>';
+
+        fetch('/patient/search-hospitals?q=' + encodeURIComponent(query))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.hospitals || data.hospitals.length === 0) {
+              resultsEl.innerHTML = '<div class="hosp-search-empty"><i class=\'bx bx-building-house\'></i>No hospitals found matching "' + escapeHtml(query) + '"</div>';
+              return;
+            }
+            resultsEl.innerHTML = data.hospitals.map(function(h) {
+              const isEnrolled = {{ (my_hospitals | map(attribute='id') | list) | tojson }}.includes(h.id);
+              return '<div class="hosp-result-item">' +
+                '<div class="hosp-result-info">' +
+                  '<div class="hosp-result-name">' + escapeHtml(h.name) + '</div>' +
+                  '<div class="hosp-result-meta">' +
+                    '<span><i class=\'bx bx-map-pin\'></i>' + escapeHtml(h.address) + '</span>' +
+                    (h.phone ? '<span><i class=\'bx bx-phone\'></i>' + escapeHtml(h.phone) + '</span>' : '') +
+                    '<span><i class=\'bx bx-id-card\'></i>ID: ' + h.id + '</span>' +
+                  '</div>' +
+                '</div>' +
+                (isEnrolled
+                  ? '<span class="hosp-result-badge"><i class=\'bx bx-check-circle\'></i> Enrolled</span>'
+                  : '<button class="btn btn-emerald btn-sm" onclick="enrollHospital(' + h.id + ')" style="white-space:nowrap;">' +
+                    '<i class=\'bx bx-log-in-circle\'></i> Enrol</button>'
+                ) +
+              '</div>';
+            }).join('');
+          })
+          .catch(function() {
+            resultsEl.innerHTML = '<div class="hosp-search-empty"><i class=\'bx bx-error-circle\'></i>Search failed. Try using the Hospital ID below.</div>';
+          });
+      }, 300);
+    }
+
+    function enrollHospital(hospitalId) {
+      // Populate the ID field and submit the enrol form
+      const idInput = document.getElementById('enrollHospitalIdInput');
+      idInput.value = hospitalId;
+      idInput.closest('form').submit();
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function(c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    // ── Mobile sidebar ──
     function closeSidebarMobile() {
       if (window.innerWidth <= 768) toggleSidebar();
     }

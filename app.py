@@ -5,9 +5,8 @@ from datetime import datetime, date, time as dtime
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog
+from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
 from utils import send_alert_email
-
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "carelix-dev-secret-change-in-prod")
@@ -234,6 +233,22 @@ def patient_dashboard():
     hospitals = Hospital.query.order_by(Hospital.name).all()
     doctors   = Doctor.query.join(Hospital).order_by(Doctor.name).all()
 
+    # ── Hospitals this patient is registered under ──────────────────────
+    enrolments = HospitalEnrolment.query.filter_by(patient_id=patient.id).all()
+    my_hospitals = []
+    for e in enrolments:
+        h = e.hospital
+        card = HospitalCard.query.filter_by(patient_id=patient.id, hospital_id=h.id).first()
+        card_status = card.status if card else None
+        my_hospitals.append({
+            "id": h.id,
+            "name": h.name,
+            "address": h.address,
+            "phone": h.phone,
+            "card_price": h.card_price,
+            "card_status": card_status,
+        })
+
     # ── Profile completeness ────────────────────────────────────────────
     fields_to_check = [
         patient.full_name, patient.date_of_birth, patient.gender,
@@ -255,6 +270,7 @@ def patient_dashboard():
         alerts=alerts,
         hospitals=hospitals,
         doctors=doctors,
+        my_hospitals=my_hospitals,
         profile_completeness=profile_completeness,
         today=date.today().isoformat(),
     )
@@ -812,6 +828,42 @@ def hospital_update_settings():
     db.session.commit()
     flash("Hospital settings updated.", "success")
     return redirect(url_for("hospital_dashboard") + "#settings")
+@app.route("/patient/search-hospitals")
+@login_required(role="patient")
+def patient_search_hospitals():
+    q = request.args.get("q", "").strip()
+    if len(q) < 2:
+        return {"hospitals": []}
+    results = Hospital.query.filter(Hospital.name.ilike(f"%{q}%")).limit(10).all()
+    return {"hospitals": [
+        {"id": h.id, "name": h.name, "address": h.address, "phone": h.phone}
+        for h in results
+    ]}
+
+@app.route("/patient/enroll-hospital", methods=["POST"])
+@login_required(role="patient")
+def patient_enroll_hospital():
+    patient = current_patient()
+    hospital_id = request.form.get("hospital_id", "")
+    hospital = Hospital.query.get(int(hospital_id)) if hospital_id else None
+    if not hospital:
+        flash("Hospital not found.", "error")
+        return redirect(url_for("patient_dashboard") + "#hospitals")
+
+    existing = HospitalEnrolment.query.filter_by(
+        patient_id=patient.id, hospital_id=hospital.id
+    ).first()
+    if existing:
+        flash("You are already registered under this hospital.", "error")
+        return redirect(url_for("patient_dashboard") + "#hospitals")
+
+    db.session.add(HospitalEnrolment(patient_id=patient.id, hospital_id=hospital.id))
+    db.session.commit()
+    flash(f"You are now registered under {hospital.name}.", "success")
+    return redirect(url_for("patient_dashboard") + "#hospitals")
+
+
+
 
 
 # ── Logout ───────────────────────────────────────────────────────────────────

@@ -118,6 +118,7 @@ class Patient(db.Model):
     medical_records = db.relationship("MedicalRecord", back_populates="patient",    cascade="all, delete-orphan")
     opay_payments   = db.relationship("OPayPayment",   back_populates="patient",    cascade="all, delete-orphan")
     alert_logs      = db.relationship("AlertLog",      back_populates="patient",    cascade="all, delete-orphan")
+    hospital_enrolments = db.relationship("HospitalEnrolment", back_populates="patient", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Patient id={self.id} code={self.emergency_code} name={self.full_name}>"
@@ -161,6 +162,7 @@ class Hospital(db.Model):
     medical_records = db.relationship("MedicalRecord", back_populates="hospital",   cascade="all, delete-orphan")
     opay_payments   = db.relationship("OPayPayment",   back_populates="hospital",   cascade="all, delete-orphan")
     alert_logs      = db.relationship("AlertLog",      back_populates="hospital",   cascade="all, delete-orphan")
+    hospital_enrolments = db.relationship("HospitalEnrolment", back_populates="hospital", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Hospital id={self.id} name={self.name} verified={self.verified}>"
@@ -309,7 +311,22 @@ class MedicalRecord(db.Model):
 # ---------------------------------------------------------------------------
 # 8. opay_payments
 # ---------------------------------------------------------------------------
+class HospitalEnrolment(db.Model):
+    __tablename__ = "hospital_enrolments"
 
+    id          = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    patient_id  = db.Column(db.Integer, db.ForeignKey("patients.id",  ondelete="CASCADE"), nullable=False, index=True)
+    hospital_id = db.Column(db.Integer, db.ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at  = db.Column(db.DateTime, nullable=False, default=_now)
+
+    __table_args__ = (db.UniqueConstraint("patient_id", "hospital_id", name="uq_patient_hospital_enrolment"),)
+
+    # -- Relationships -------------------------------------------------------
+    patient  = db.relationship("Patient",  back_populates="hospital_enrolments")
+    hospital = db.relationship("Hospital", back_populates="hospital_enrolments")
+
+    def __repr__(self) -> str:
+        return f"<HospitalEnrolment id={self.id} patient={self.patient_id} hospital={self.hospital_id}>"
 class OPayPayment(db.Model):
     """
     Tracks every OPay payment attempt from initiation through webhook
