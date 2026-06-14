@@ -16,7 +16,7 @@ class User(db.Model):
 
     def set_password(self, password):
         """Hashes the password using bcrypt via werkzeug."""
-        self.password_hash = generate_password_hash(password, method='bcrypt')
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         """Verifies the hashed password."""
