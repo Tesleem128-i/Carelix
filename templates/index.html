@@ -8,6 +8,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../static/css/index.css" />
 </head>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
 <body class="dot-bg">
 
   <nav>
@@ -27,7 +38,10 @@
         <a href="#testimonials">Testimonials</a>
         <a href="#contact">Contact</a>
       </div>
-      <a href="#contact" class="btn btn-primary nav-cta" style="padding: 10px 22px; font-size: 0.88rem;">Get Started</a>
+      <div class="nav-register-btns">
+        <a href="/patient/login" class="btn btn-outline nav-cta" style="padding: 8px 18px; font-size: 0.85rem;"><i class='bx bx-log-in'></i> Patient Login</a>
+        <a href="/hospital/login" class="btn btn-primary nav-cta" style="padding: 8px 18px; font-size: 0.85rem;"><i class='bx bx-buildings'></i> Hospital Login</a>
+      </div>
       <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light mode">
         <i class='bx bx-moon'></i>
       </button>
@@ -44,7 +58,10 @@
     <a href="#goals" class="mobile-link" style="animation-delay: 0.19s" onclick="closeMenu()">Goals</a>
     <a href="#testimonials" class="mobile-link" style="animation-delay: 0.26s" onclick="closeMenu()">Testimonials</a>
     <a href="#contact" class="mobile-link" style="animation-delay: 0.33s" onclick="closeMenu()">Contact</a>
-    <a href="#contact" class="mobile-link cta-link" style="animation-delay: 0.4s" onclick="closeMenu()">Get Started <i class='bx bx-right-arrow-alt'></i></a>
+    <a href="/patient/register" class="mobile-link cta-link" style="animation-delay: 0.4s" onclick="closeMenu()">Patient Register <i class='bx bx-right-arrow-alt'></i></a>
+    <a href="/patient/login" class="mobile-link cta-link" style="animation-delay: 0.47s" onclick="closeMenu()">Patient Login <i class='bx bx-log-in'></i></a>
+    <a href="/hospital/register" class="mobile-link cta-link" style="animation-delay: 0.54s" onclick="closeMenu()">Hospital Register <i class='bx bx-right-arrow-alt'></i></a>
+    <a href="/hospital/login" class="mobile-link cta-link" style="animation-delay: 0.61s" onclick="closeMenu()">Hospital Login <i class='bx bx-log-in'></i></a>
   </div>
 
   <!-- =================== HERO =================== -->
@@ -76,11 +93,11 @@
             Register once. Carry your health record everywhere. Carelix gives every Nigerian citizen a unique health identity — an emergency code, a digital medical card, and seamless care no matter which hospital you walk into.
           </p>
           <div class="hero-actions">
-            <a href="#contact" class="btn btn-primary">
-              <i class='bx bx-id-card'></i> Register Now
+            <a href="/patient/register" class="btn btn-primary">
+              <i class='bx bx-id-card'></i> Patient Register
             </a>
-            <a href="#about" class="btn btn-outline">
-              <i class='bx bx-info-circle'></i> Learn More
+            <a href="/hospital/register" class="btn btn-outline">
+              <i class='bx bx-buildings'></i> Hospital Register
             </a>
           </div>
           <div class="hero-stats">
@@ -420,7 +437,8 @@
         <div class="footer-col">
           <h4>Citizens</h4>
           <ul>
-            <li><a href="#">Register Now</a></li>
+            <li><a href="/patient/register">Register Now</a></li>
+            <li><a href="/patient/login">Patient Login</a></li>
             <li><a href="#">Get Digital Card</a></li>
             <li><a href="#">Emergency Code</a></li>
             <li><a href="#">Find a Hospital</a></li>
@@ -430,7 +448,8 @@
         <div class="footer-col">
           <h4>Hospitals</h4>
           <ul>
-            <li><a href="#">Subscribe</a></li>
+            <li><a href="/hospital/register">Register Hospital</a></li>
+            <li><a href="/hospital/login">Hospital Login</a></li>
             <li><a href="#">Manage Doctors</a></li>
             <li><a href="#">Patient Records</a></li>
             <li><a href="#">Payments (OPay)</a></li>

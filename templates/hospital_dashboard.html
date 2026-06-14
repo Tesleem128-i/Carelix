@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Hospital Dashboard</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/index.css" />
+  <link rel="stylesheet" href="../static/css/dashboard.css" />
+  <style>
+    /* ── TOPBAR HEADER ── */
+    .dash-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 60px;
+      background: var(--glass-bg, rgba(255,255,255,0.85));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border, rgba(0,0,0,0.08));
+      gap: 16px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-title { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 600; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .topbar-subtitle { font-size: 0.72rem; color: var(--text-muted); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .topbar-stat { display: flex; flex-direction: column; align-items: center; padding: 6px 14px; background: var(--surface-1, rgba(0,0,0,0.04)); border-radius: 10px; min-width: 62px; }
+    .topbar-stat-val { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 700; font-size: 1.05rem; color: var(--text-primary); line-height: 1; }
+    .topbar-stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; }
+    .topbar-divider { width: 1px; height: 32px; background: var(--border, rgba(0,0,0,0.08)); }
+    @media (max-width: 640px) {
+      .topbar-stat { display: none; }
+      .topbar-divider { display: none; }
+      .topbar-title { max-width: 140px; }
+    }
+
+    /* ── SIDEBAR MOBILE ── */
+    .dash-sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+    }
+    .dash-sidebar-overlay.active { display: block; }
+    @media (max-width: 768px) {
+      .dash-sidebar {
+        position: fixed !important;
+        left: -260px !important;
+        top: 0;
+        height: 100vh;
+        z-index: 210;
+        transition: left 0.25s ease;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+      }
+      .dash-sidebar.open { left: 0 !important; }
+      .dash-main { margin-left: 0 !important; }
+      .dash-mobile-toggle { display: flex !important; }
+    }
+
+    /* ── ENROLLMENT SECTION ── */
+    .enroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .enroll-card {
+      border: 1px solid var(--border, rgba(0,0,0,0.08));
+      border-radius: 14px;
+      padding: 18px 20px;
+      background: var(--surface-1, rgba(0,0,0,0.02));
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .enroll-card-name { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+    .enroll-card-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .enroll-card-meta span { display: flex; align-items: center; gap: 4px; }
+    .enroll-card-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .hospital-id-box {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      color: #fff;
+    }
+    .hospital-id-box-label { font-size: 0.78rem; opacity: 0.85; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+    .hospital-id-box-code { font-family: var(--ff-display,'Sora',sans-serif); font-size: 1.6rem; font-weight: 800; letter-spacing: 0.06em; }
+    .hospital-id-box-copy { flex-shrink: 0; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 10px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    .hospital-id-box-copy:hover { background: rgba(255,255,255,0.35); }
+
+    /* ── ALERT TOGGLE IN SEARCH ── */
+    .alert-toggle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-1, rgba(0,0,0,0.03));
+      border: 1px solid var(--border, rgba(0,0,0,0.08));
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-top: 18px;
+      gap: 12px;
+    }
+    .alert-toggle-text { flex: 1; }
+    .alert-toggle-text strong { display: block; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 2px; }
+    .alert-toggle-text span { font-size: 0.76rem; color: var(--text-muted); }
+    /* Toggle switch */
+    .toggle-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: #cbd5e1; border-radius: 26px; cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-slider:before {
+      content: ''; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-switch input:checked + .toggle-slider { background: #22c55e; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+    /* ── ENROLLED PATIENTS TAB ── */
+    .enrolled-empty-cta {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .enrolled-empty-cta i { font-size: 2.8rem; color: var(--text-muted); display: block; margin-bottom: 12px; }
+    .enrolled-empty-cta p { color: var(--text-muted); margin-bottom: 16px; }
+    .hospital-card-preview {
+      border: 1.5px solid rgba(14,165,233,0.3);
+      border-radius: 16px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(99,102,241,0.06) 100%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .hospital-card-preview-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #0ea5e9, #6366f1); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.4rem; flex-shrink: 0; }
+    .hospital-card-preview-info { flex: 1; min-width: 0; }
+    .hospital-card-preview-name { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+    .hospital-card-preview-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .hospital-card-preview-price { text-align: right; }
+    .hospital-card-preview-price strong { display: block; font-family: var(--ff-display,'Sora',sans-serif); font-size: 1.3rem; font-weight: 800; color: #0ea5e9; }
+    .hospital-card-preview-price span { font-size: 0.72rem; color: var(--text-muted); }
+    .payment-disabled-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
+      color: #d97706; border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* ── MOBILE RESPONSIVENESS ── */
+    @media (max-width: 480px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .dash-form-grid { grid-template-columns: 1fr; }
+      .dash-form-group.full { grid-column: 1; }
+      .hospital-id-box { flex-direction: column; text-align: center; }
+      .hospital-card-preview { flex-direction: column; text-align: center; }
+      .hospital-card-preview-price { text-align: center; }
+      .alert-toggle-bar { flex-direction: column; align-items: flex-start; }
+      .enroll-card-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body class="dot-bg dash-body">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- STICKY TOPBAR HEADER -->
+  <div class="dash-topbar">
+    <div class="topbar-left">
+      <button class="dash-mobile-toggle-inline" id="sidebarToggleInline" onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text-primary);display:none;">
+        <i class='bx bx-menu'></i>
+      </button>
+      <div>
+        <div class="topbar-title">{{ hospital.name }}</div>
+        <div class="topbar-subtitle">
+          {% if hospital.verified %}
+            <span style="color:#22c55e;">● Verified</span>
+          {% else %}
+            <span style="color:#f59e0b;">● Pending Verification</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-stat">
+        <div class="topbar-stat-val">{{ enrolled_patients_count }}</div>
+        <div class="topbar-stat-lbl">Enrolled</div>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-stat">
+        <div class="topbar-stat-val">{{ appointments_today_count }}</div>
+        <div class="topbar-stat-lbl">Today</div>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-stat">
+        <div class="topbar-stat-val">{{ doctors|length }}</div>
+        <div class="topbar-stat-lbl">Doctors</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="dash-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="dash-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="dash-sidebar" id="dashSidebar">
+      <div class="dash-sidebar-user">
+        <div class="circle-icon blue-icon">
+          <i class='bx bx-buildings'></i>
+        </div>
+        <div>
+          <div class="dash-sidebar-user-name">{{ hospital.name }}</div>
+          <div class="dash-sidebar-user-sub">
+            {% if hospital.verified %}
+              <span class="badge badge-verified">Verified</span>
+            {% else %}
+              <span class="badge badge-unverified">Pending</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <nav class="dash-nav">
+        <a href="#overview" class="dash-nav-link active" onclick="switchTab('overview','hospital'); closeSidebarMobile()">
+          <i class='bx bx-grid-alt'></i> Overview
+        </a>
+        <a href="#enrolled" class="dash-nav-link" onclick="switchTab('enrolled','hospital'); closeSidebarMobile()">
+          <i class='bx bx-id-card'></i> Enrolled Patients
+        </a>
+        <a href="#search" class="dash-nav-link" onclick="switchTab('search','hospital'); closeSidebarMobile()">
+          <i class='bx bx-search-alt-2'></i> Emergency Search
+        </a>
+        <a href="#appointments" class="dash-nav-link" onclick="switchTab('appointments','hospital'); closeSidebarMobile()">
+          <i class='bx bx-calendar-check'></i> Appointments
+        </a>
+        <a href="#doctors" class="dash-nav-link" onclick="switchTab('doctors','hospital'); closeSidebarMobile()">
+          <i class='bx bx-stethoscope'></i> Doctors
+        </a>
+        <a href="#records" class="dash-nav-link" onclick="switchTab('records','hospital'); closeSidebarMobile()">
+          <i class='bx bx-file-blank'></i> Patient Records
+        </a>
+        <a href="#alerts" class="dash-nav-link" onclick="switchTab('alerts','hospital'); closeSidebarMobile()">
+          <i class='bx bx-bell'></i> Alert Logs
+        </a>
+        <a href="#settings" class="dash-nav-link" onclick="switchTab('settings','hospital'); closeSidebarMobile()">
+          <i class='bx bx-cog'></i> Hospital Settings
+        </a>
+        <div class="dash-nav-divider"></div>
+        <a href="/logout" class="dash-nav-link dash-nav-logout">
+          <i class='bx bx-log-out'></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dash-main" data-panel-group="hospital">
+
+      <!-- ===================== OVERVIEW ===================== -->
+      <section class="dash-tab-panel active" data-panel="overview">
+        <div class="dash-header">
+          <h1>Dashboard Overview</h1>
+          <p>Statistics and today's activity for {{ hospital.name }}.</p>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card glass">
+            <div class="stat-card-icon blue"><i class='bx bx-group'></i></div>
+            <div class="stat-card-value">{{ enrolled_patients_count }}</div>
+            <div class="stat-card-label">Enrolled Patients</div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-card-icon emerald"><i class='bx bx-calendar'></i></div>
+            <div class="stat-card-value">{{ appointments_today_count }}</div>
+            <div class="stat-card-label">Appointments Today</div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-card-icon amber"><i class='bx bx-stethoscope'></i></div>
+            <div class="stat-card-value">{{ doctors|length }}</div>
+            <div class="stat-card-label">Doctors Listed</div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-card-icon rose"><i class='bx bx-bell'></i></div>
+            <div class="stat-card-value">{{ alerts|length }}</div>
+            <div class="stat-card-label">Emergency Alerts</div>
+          </div>
+        </div>
+
+        {% if not hospital.verified %}
+        <div class="dash-section glass" style="border: 1px solid rgba(245,158,11,0.3);">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-time-five' style="color:#f59e0b;"></i> Verification Pending</h2>
+          </div>
+          <p class="text-muted">Your hospital account is awaiting admin verification. Some features may be limited until verified.</p>
+        </div>
+        {% endif %}
+
+        <!-- Hospital ID box so staff can share it with patients -->
+        <div class="hospital-id-box">
+          <div>
+            <div class="hospital-id-box-label">Your Hospital ID — Share with patients to enrol</div>
+            <div class="hospital-id-box-code">{{ hospital.id }}</div>
+          </div>
+          <button class="hospital-id-box-copy" onclick="copyText('{{ hospital.id }}', this)">
+            <i class='bx bx-copy'></i> Copy ID
+          </button>
+        </div>
+
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-calendar-check'></i> Today's Appointments</h2>
+            <a href="#appointments" class="btn btn-outline btn-sm" onclick="switchTab('appointments','hospital')">View all</a>
+          </div>
+          {% if today_appointments %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {% for appt in today_appointments %}
+                <tr>
+                  <td>{{ appt.appointment_datetime.strftime('%I:%M %p') }}</td>
+                  <td>{{ appt.patient.full_name }}</td>
+                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td class="wrap">{{ appt.reason or '—' }}</td>
+                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-calendar-x'></i>
+            No appointments scheduled for today.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== ENROLLED PATIENTS ===================== -->
+      <section class="dash-tab-panel" data-panel="enrolled">
+        <div class="dash-header">
+          <h1>Enrolled Patients</h1>
+          <p>Patients who have registered under {{ hospital.name }} using your Hospital ID.</p>
+        </div>
+
+        <!-- Card price & hospital card info -->
+        <div class="dash-section glass" style="margin-bottom: 24px;">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-credit-card'></i> Hospital Card</h2>
+          </div>
+          <div class="hospital-card-preview">
+            <div class="hospital-card-preview-icon"><i class='bx bx-plus-medical'></i></div>
+            <div class="hospital-card-preview-info">
+              <div class="hospital-card-preview-name">{{ hospital.name }} Health Card</div>
+              <div class="hospital-card-preview-meta">Valid for 1 year · Grants appointment booking access</div>
+            </div>
+            <div class="hospital-card-preview-price">
+              <strong>₦{{ "{:,.0f}".format(hospital.card_price) }}</strong>
+              <span>per card</span>
+            </div>
+          </div>
+          <div class="payment-disabled-badge" style="margin-top: 16px;">
+            <i class='bx bx-info-circle'></i>
+            OPay payment is currently unavailable — coming soon
+          </div>
+          <p class="text-muted" style="font-size:0.8rem; margin-top: 10px;">
+            Patients who enrol under your hospital ID will see this card and price. Payment will be enabled in a future update.
+          </p>
+        </div>
+
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-group'></i> Patient List</h2>
+            <span class="badge badge-verified">{{ enrolled_patients_count }} enrolled</span>
+          </div>
+
+          {% if enrolled_patients %}
+          <div class="enroll-grid">
+            {% for ep in enrolled_patients %}
+            <div class="enroll-card">
+              <div class="enroll-card-name">{{ ep.full_name }}</div>
+              <div class="enroll-card-meta">
+                <span><i class='bx bx-id-card'></i> {{ ep.emergency_code }}</span>
+                <span><i class='bx bx-droplet'></i> {{ ep.blood_type or '—' }}</span>
+                {% if ep.hospital_card_status %}
+                <span style="color: {% if ep.hospital_card_status == 'active' %}#22c55e{% else %}#f59e0b{% endif %};">
+                  <i class='bx bx-credit-card'></i> Card {{ ep.hospital_card_status }}
+                </span>
+                {% else %}
+                <span style="color:#94a3b8;"><i class='bx bx-credit-card'></i> No card</span>
+                {% endif %}
+              </div>
+              <div class="enroll-card-actions">
+                <form method="GET" action="/hospital/search" style="flex:1">
+                  <input type="hidden" name="code" value="{{ ep.emergency_code }}" />
+                  <button type="submit" class="btn btn-outline btn-sm" style="width:100%;"><i class='bx bx-search-alt-2'></i> View Profile</button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="enrolled-empty-cta">
+            <i class='bx bx-group'></i>
+            <p>No patients have enrolled under your hospital yet.</p>
+            <p class="text-muted" style="font-size:0.82rem;">Share your Hospital ID (<strong>{{ hospital.id }}</strong>) with patients so they can register under your hospital and book appointments.</p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== EMERGENCY SEARCH ===================== -->
+      <section class="dash-tab-panel" data-panel="search">
+        <div class="dash-header">
+          <h1>Emergency Profile Search</h1>
+          <p>Type a patient's emergency code to instantly view their critical medical information.</p>
+        </div>
+
+        <div class="dash-section glass">
+          <form method="GET" action="/hospital/search" class="search-box" id="emergencySearchForm">
+            <input type="text" name="code" placeholder="e.g. 84729-XKP" value="{{ search_code or '' }}" autocomplete="off" />
+            <button type="submit" class="btn btn-primary"><i class='bx bx-search-alt-2'></i> Search</button>
+          </form>
+
+          <!-- Alert toggle — hospital staff chooses whether to notify next of kin -->
+          <div class="alert-toggle-bar">
+            <div class="alert-toggle-text">
+              <strong><i class='bx bx-mail-send' style="margin-right:4px;"></i> Notify Emergency Contact</strong>
+              <span>When enabled, an email alert is sent to the patient's next of kin every time you open their emergency profile.</span>
+            </div>
+            <label class="toggle-switch" title="Toggle emergency contact alert">
+              <input type="checkbox" id="alertToggle" name="send_alert" form="emergencySearchForm" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <p id="alertToggleNote" style="font-size:0.75rem; color: var(--text-muted); margin-top: 6px;">
+            Alert is <strong id="alertToggleState" style="color:#22c55e;">ON</strong> — next of kin will be notified.
+          </p>
+
+          {% if search_error %}
+          <div class="dash-empty">
+            <i class='bx bx-error-circle'></i>
+            {{ search_error }}
+          </div>
+          {% endif %}
+
+          {% if searched_patient %}
+          <div class="profile-result">
+            <div class="dash-section-header" style="margin-bottom: 6px;">
+              <h2><i class='bx bx-user'></i> {{ searched_patient.full_name }}</h2>
+              <span class="text-muted">Code: {{ searched_patient.emergency_code }}</span>
+            </div>
+            <div class="profile-grid">
+              <div>
+                <div class="profile-field-label">Date of Birth</div>
+                <div class="profile-field-value">{{ searched_patient.date_of_birth.strftime('%d %b %Y') }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Gender</div>
+                <div class="profile-field-value">{{ searched_patient.gender or '—' }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Blood Type</div>
+                <div class="profile-field-value">{{ searched_patient.blood_type or '—' }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Genotype</div>
+                <div class="profile-field-value">{{ searched_patient.genotype or '—' }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Allergies</div>
+                <div class="profile-field-value">{{ searched_patient.allergies or 'None recorded' }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Chronic Conditions</div>
+                <div class="profile-field-value">{{ searched_patient.chronic_conditions or 'None recorded' }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Current Medications</div>
+                <div class="profile-field-value">{{ searched_patient.current_medications or 'None recorded' }}</div>
+              </div>
+              <div>
+                <div class="profile-field-label">Emergency Contact</div>
+                <div class="profile-field-value">{{ searched_patient.emergency_contact_name }} ({{ searched_patient.emergency_contact_phone or 'no phone' }})</div>
+              </div>
+            </div>
+
+            {% if alert_sent %}
+            <div class="profile-alert-banner">
+              <i class='bx bx-mail-send'></i>
+              An email alert was sent to {{ searched_patient.emergency_contact_name }} ({{ searched_patient.emergency_contact_email }}) notifying them that their profile was accessed.
+            </div>
+            {% elif alert_skipped %}
+            <div class="profile-alert-banner" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #d97706;">
+              <i class='bx bx-bell-off'></i>
+              Alert was disabled — emergency contact was not notified.
+            </div>
+            {% endif %}
+
+            <div class="dash-form-actions">
+              <button class="btn btn-emerald btn-sm" onclick="openModal('addRecordModal')"><i class='bx bx-plus'></i> Add Medical Record</button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== APPOINTMENTS ===================== -->
+      <section class="dash-tab-panel" data-panel="appointments">
+        <div class="dash-header">
+          <h1>Appointments</h1>
+          <p>View and manage patient bookings at {{ hospital.name }}.</p>
+        </div>
+
+        <div class="dash-section glass">
+          {% if appointments %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Date &amp; Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {% for appt in appointments %}
+                <tr>
+                  <td>{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td>{{ appt.patient.full_name }}</td>
+                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td class="wrap">{{ appt.reason or '—' }}</td>
+                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                  <td>
+                    {% if appt.status == 'pending' %}
+                    <form method="POST" action="/hospital/appointment/{{ appt.id }}/status" style="display:inline">
+                      <input type="hidden" name="status" value="confirmed" />
+                      <button type="submit" class="btn btn-primary btn-sm"><i class='bx bx-check'></i> Confirm</button>
+                    </form>
+                    {% elif appt.status == 'confirmed' %}
+                    <form method="POST" action="/hospital/appointment/{{ appt.id }}/status" style="display:inline">
+                      <input type="hidden" name="status" value="completed" />
+                      <button type="submit" class="btn btn-emerald btn-sm"><i class='bx bx-check-double'></i> Complete</button>
+                    </form>
+                    {% else %}
+                    —
+                    {% endif %}
+                    {% if appt.status in ['pending','confirmed'] %}
+                    <form method="POST" action="/hospital/appointment/{{ appt.id }}/status" style="display:inline" onsubmit="return confirmSubmit('Cancel this appointment?')">
+                      <input type="hidden" name="status" value="cancelled" />
+                      <button type="submit" class="btn btn-danger btn-sm"><i class='bx bx-x'></i></button>
+                    </form>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-calendar-x'></i>
+            No appointments yet.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== DOCTORS ===================== -->
+      <section class="dash-tab-panel" data-panel="doctors">
+        <div class="dash-header">
+          <h1>Doctor Management</h1>
+          <p>Add doctors and manage their availability and slot limits.</p>
+        </div>
+
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-plus-circle'></i> Add a Doctor</h2>
+          </div>
+          <form method="POST" action="/hospital/doctors/add">
+            <div class="dash-form-grid">
+              <div class="dash-form-group">
+                <label>Doctor Name <span style="color:#ef4444">*</span></label>
+                <input type="text" name="name" placeholder="Dr. Amaka Okoye" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Specialty <span style="color:#ef4444">*</span></label>
+                <input type="text" name="specialty" placeholder="Cardiology" required />
+              </div>
+              <div class="dash-form-group full">
+                <label>Available Days <span style="color:#ef4444">*</span></label>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  {% for day in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+                  <label style="display:flex; align-items:center; gap:6px; font-weight:500; font-size:0.85rem;">
+                    <input type="checkbox" name="available_days" value="{{ day }}" style="width:auto;" /> {{ day }}
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="dash-form-group">
+                <label>Start Time <span style="color:#ef4444">*</span></label>
+                <input type="time" name="start_time" value="08:00" required />
+              </div>
+              <div class="dash-form-group">
+                <label>End Time <span style="color:#ef4444">*</span></label>
+                <input type="time" name="end_time" value="17:00" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Slot Duration (mins)</label>
+                <input type="number" name="slot_duration_mins" value="30" min="10" step="5" />
+              </div>
+              <div class="dash-form-group">
+                <label>Max Daily Appointments</label>
+                <input type="number" name="max_daily_appointments" value="20" min="1" />
+              </div>
+            </div>
+            <div class="dash-form-actions">
+              <button type="submit" class="btn btn-primary"><i class='bx bx-plus'></i> Add Doctor</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-stethoscope'></i> Doctors</h2>
+          </div>
+          {% if doctors %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Name</th><th>Specialty</th><th>Days</th><th>Hours</th><th>Slot</th><th>Max/Day</th><th></th></tr>
+              </thead>
+              <tbody>
+                {% for d in doctors %}
+                <tr>
+                  <td>{{ d.name }}</td>
+                  <td>{{ d.specialty }}</td>
+                  <td>{{ d.available_days }}</td>
+                  <td>{{ d.start_time.strftime('%I:%M %p') }} – {{ d.end_time.strftime('%I:%M %p') }}</td>
+                  <td>{{ d.slot_duration_mins }} min</td>
+                  <td>{{ d.max_daily_appointments }}</td>
+                  <td>
+                    <form method="POST" action="/hospital/doctors/{{ d.id }}/delete" onsubmit="return confirmSubmit('Remove this doctor?')">
+                      <button type="submit" class="btn btn-danger btn-sm"><i class='bx bx-trash'></i></button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-stethoscope'></i>
+            No doctors added yet.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== PATIENT RECORDS ===================== -->
+      <section class="dash-tab-panel" data-panel="records">
+        <div class="dash-header">
+          <h1>Patient Records</h1>
+          <p>Medical records added for patients enrolled at your hospital.</p>
+        </div>
+
+        <div class="dash-section glass">
+          {% if medical_records %}
+            {% for rec in medical_records %}
+            <div class="record-card">
+              <div class="record-card-head">
+                <strong>{{ rec.patient.full_name }}</strong>
+                <span class="text-muted">{{ rec.visit_date.strftime('%d %b %Y') }}</span>
+              </div>
+              {% if rec.doctor %}
+              <div class="record-card-row"><span>Doctor:</span>{{ rec.doctor.name }}</div>
+              {% endif %}
+              <div class="record-card-row"><span>Diagnosis:</span>{{ rec.diagnosis or '—' }}</div>
+              <div class="record-card-row"><span>Prescription:</span>{{ rec.prescription or '—' }}</div>
+              <div class="record-card-row"><span>Test Results:</span>{{ rec.test_results or '—' }}</div>
+              {% if rec.notes %}
+              <div class="record-card-row"><span>Notes:</span>{{ rec.notes }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-file-blank'></i>
+            No medical records added yet. Search a patient's emergency code to add one.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== ALERT LOGS ===================== -->
+      <section class="dash-tab-panel" data-panel="alerts">
+        <div class="dash-header">
+          <h1>Alert Logs</h1>
+          <p>Every email alert sent to a patient's emergency contact when their profile was accessed.</p>
+        </div>
+
+        <div class="dash-section glass">
+          {% if alerts %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Date</th><th>Patient</th><th>Sent To</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {% for a in alerts %}
+                <tr>
+                  <td>{{ a.sent_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td>{{ a.patient.full_name if a.patient else '—' }}</td>
+                  <td>{{ a.recipient_email }}</td>
+                  <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-bell-off'></i>
+            No alerts sent yet.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== SETTINGS ===================== -->
+      <section class="dash-tab-panel" data-panel="settings">
+        <div class="dash-header">
+          <h1>Hospital Settings</h1>
+          <p>Update your hospital's profile information.</p>
+        </div>
+
+        <div class="dash-section glass">
+          <form method="POST" action="/hospital/settings">
+            <div class="dash-form-grid">
+              <div class="dash-form-group">
+                <label>Hospital Name</label>
+                <input type="text" name="hospital_name" value="{{ hospital.name }}" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Phone</label>
+                <input type="tel" name="phone" value="{{ hospital.phone or '' }}" />
+              </div>
+              <div class="dash-form-group full">
+                <label>Address</label>
+                <textarea name="address" required>{{ hospital.address }}</textarea>
+              </div>
+              <div class="dash-form-group">
+                <label>CAC Number</label>
+                <input type="text" value="{{ hospital.cac_number }}" disabled />
+              </div>
+              <div class="dash-form-group">
+                <label>Card Price (NGN)</label>
+                <input type="number" name="card_price" value="{{ hospital.card_price }}" step="0.01" min="0" />
+              </div>
+              <div class="dash-form-group">
+                <label>OPay Account Number</label>
+                <input type="text" name="opay_account_number" value="{{ hospital.opay_account_number }}" />
+              </div>
+              <div class="dash-form-group">
+                <label>OPay Account Name</label>
+                <input type="text" name="opay_account_name" value="{{ hospital.opay_account_name }}" />
+              </div>
+            </div>
+            <div class="dash-form-actions">
+              <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile sidebar toggle FAB -->
+  <button class="dash-mobile-toggle" id="sidebarToggleBtn" onclick="toggleSidebar()">
+    <i class='bx bx-menu'></i>
+  </button>
+
+  <!-- ===================== ADD MEDICAL RECORD MODAL ===================== -->
+  {% if searched_patient %}
+  <div class="modal-overlay" id="addRecordModal">
+    <div class="modal-box glass">
+      <h3>
+        Add Medical Record — {{ searched_patient.full_name }}
+        <span class="modal-close" onclick="closeModal('addRecordModal')"><i class='bx bx-x'></i></span>
+      </h3>
+      <form method="POST" action="/hospital/records/add">
+        <input type="hidden" name="patient_id" value="{{ searched_patient.id }}" />
+        <div class="dash-form-grid">
+          <div class="dash-form-group">
+            <label>Visit Date <span style="color:#ef4444">*</span></label>
+            <input type="date" name="visit_date" value="{{ today }}" required />
+          </div>
+          <div class="dash-form-group">
+            <label>Doctor</label>
+            <select name="doctor_id">
+              <option value="">— None —</option>
+              {% for d in doctors %}
+              <option value="{{ d.id }}">{{ d.name }} ({{ d.specialty }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="dash-form-group full">
+            <label>Diagnosis</label>
+            <textarea name="diagnosis" placeholder="e.g. Acute malaria"></textarea>
+          </div>
+          <div class="dash-form-group full">
+            <label>Prescription</label>
+            <textarea name="prescription" placeholder="e.g. Artemether/Lumefantrine 80/480mg"></textarea>
+          </div>
+          <div class="dash-form-group full">
+            <label>Test Results</label>
+            <textarea name="test_results" placeholder="e.g. Malaria parasite test: positive"></textarea>
+          </div>
+          <div class="dash-form-group full">
+            <label>Notes</label>
+            <textarea name="notes" placeholder="Additional notes…"></textarea>
+          </div>
+        </div>
+        <div class="dash-form-actions">
+          <button type="submit" class="btn btn-emerald"><i class='bx bx-save'></i> Save Record</button>
+          <button type="button" class="btn btn-ghost" onclick="closeModal('addRecordModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <script src="../static/js/auth.js"></script>
+  <script src="../static/js/dashboard.js"></script>
+  <script>
+    // Alert toggle label
+    const alertToggle = document.getElementById('alertToggle');
+    const alertState  = document.getElementById('alertToggleState');
+    if (alertToggle && alertState) {
+      alertToggle.addEventListener('change', function() {
+        if (this.checked) {
+          alertState.textContent = 'ON';
+          alertState.style.color = '#22c55e';
+          document.getElementById('alertToggleNote').lastChild.textContent = ' — next of kin will be notified.';
+        } else {
+          alertState.textContent = 'OFF';
+          alertState.style.color = '#ef4444';
+          document.getElementById('alertToggleNote').lastChild.textContent = ' — next of kin will NOT be notified.';
+        }
+      });
+    }
+
+    // Mobile sidebar: show inline toggle button
+    function closeSidebarMobile() {
+      if (window.innerWidth <= 768) toggleSidebar();
+    }
+
+    // Override toggleSidebar to also handle overlay
+    function toggleSidebar() {
+      const sidebar  = document.getElementById('dashSidebar');
+      const overlay  = document.getElementById('sidebarOverlay');
+      const isOpen   = sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', !isOpen);
+      if (overlay) overlay.classList.toggle('active', !isOpen);
+    }
+
+    // Show inline toggle on mobile
+    (function() {
+      const inlineBtn = document.getElementById('sidebarToggleInline');
+      if (inlineBtn) {
+        const mq = window.matchMedia('(max-width: 768px)');
+        function update(e) { inlineBtn.style.display = e.matches ? 'inline-flex' : 'none'; }
+        mq.addEventListener('change', update);
+        update(mq);
+      }
+    })();
+  </script>
+  {% if searched_patient and show_record_modal %}
+  <script>document.addEventListener('DOMContentLoaded', function(){ openModal('addRecordModal'); });</script>
+  {% endif %}
+</body>
+</html>

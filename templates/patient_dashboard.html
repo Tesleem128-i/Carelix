@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Patient Dashboard</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/index.css" />
+  <link rel="stylesheet" href="../static/css/dashboard.css" />
+  <style>
+    /* ── TOPBAR HEADER ── */
+    .dash-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 60px;
+      background: var(--glass-bg, rgba(255,255,255,0.85));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border, rgba(0,0,0,0.08));
+      gap: 16px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-title { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 600; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .topbar-subtitle { font-size: 0.72rem; color: var(--text-muted); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .topbar-stat { display: flex; flex-direction: column; align-items: center; padding: 6px 14px; background: var(--surface-1, rgba(0,0,0,0.04)); border-radius: 10px; min-width: 62px; }
+    .topbar-stat-val { font-family: var(--ff-display,'Sora',sans-serif); font-weight: 700; font-size: 1.05rem; color: var(--text-primary); line-height: 1; }
+    .topbar-stat-lbl { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; }
+    .topbar-divider { width: 1px; height: 32px; background: var(--border, rgba(0,0,0,0.08)); }
+    @media (max-width: 640px) {
+      .topbar-stat { display: none; }
+      .topbar-divider { display: none; }
+      .topbar-title { max-width: 140px; }
+    }
+
+    /* ── SIDEBAR MOBILE ── */
+    .dash-sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+    }
+    .dash-sidebar-overlay.active { display: block; }
+    @media (max-width: 768px) {
+      .dash-sidebar {
+        position: fixed !important;
+        left: -260px !important;
+        top: 0;
+        height: 100vh;
+        z-index: 210;
+        transition: left 0.25s ease;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+      }
+      .dash-sidebar.open { left: 0 !important; }
+      .dash-main { margin-left: 0 !important; }
+      .dash-mobile-toggle { display: flex !important; }
+    }
+
+    /* ── HOSPITAL REGISTRATION SECTION ── */
+    .my-hospitals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .my-hospital-card {
+      border: 1.5px solid var(--border, rgba(0,0,0,0.08));
+      border-radius: 16px;
+      padding: 20px;
+      background: var(--surface-1, rgba(0,0,0,0.02));
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+    .my-hospital-card.has-card { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.04); }
+    .my-hospital-card-name { font-weight: 700; font-size: 0.98rem; color: var(--text-primary); }
+    .my-hospital-card-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; }
+    .my-hospital-card-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 8px; padding: 4px 10px; font-size: 0.73rem; font-weight: 600;
+      width: fit-content;
+    }
+    .my-hospital-card-badge.active { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .my-hospital-card-badge.pending { background: rgba(245,158,11,0.12); color: #d97706; }
+    .my-hospital-card-badge.no-card { background: rgba(148,163,184,0.12); color: #64748b; }
+
+    .enroll-form-box {
+      background: var(--surface-1, rgba(0,0,0,0.02));
+      border: 1.5px dashed var(--border, rgba(0,0,0,0.12));
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .enroll-form-box h3 { font-family: var(--ff-display,'Sora',sans-serif); font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .enroll-form-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+    .enroll-form-row .dash-form-group { flex: 1; min-width: 180px; margin: 0; }
+
+    /* ── HOSPITAL CARD (payment) ── */
+    .hcard-offer {
+      border: 1.5px solid rgba(14,165,233,0.3);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .hcard-offer-header {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      padding: 18px 22px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .hcard-offer-header-left h4 { margin: 0; font-family: var(--ff-display,'Sora',sans-serif); font-size: 1rem; font-weight: 700; }
+    .hcard-offer-header-left p { margin: 4px 0 0; font-size: 0.78rem; opacity: 0.85; }
+    .hcard-price { font-family: var(--ff-display,'Sora',sans-serif); font-size: 1.6rem; font-weight: 800; }
+    .hcard-offer-body { padding: 18px 22px; }
+    .hcard-perks { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
+    .hcard-perks li { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-primary); }
+    .hcard-perks li i { color: #22c55e; font-size: 1rem; }
+    .payment-coming-soon {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 12px; padding: 14px 18px;
+      font-size: 0.83rem; color: #b45309;
+    }
+    .payment-coming-soon i { font-size: 1.3rem; flex-shrink: 0; }
+
+    /* ── BOOKING RESTRICTION NOTICE ── */
+    .booking-locked-notice {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 14px; padding: 18px 20px;
+    }
+    .booking-locked-notice i { font-size: 1.5rem; color: #6366f1; flex-shrink: 0; margin-top: 2px; }
+    .booking-locked-notice-text strong { display: block; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 4px; }
+    .booking-locked-notice-text span { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 480px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .dash-form-grid { grid-template-columns: 1fr; }
+      .dash-form-group.full { grid-column: 1; }
+      .enroll-form-row { flex-direction: column; }
+      .hcard-offer-header { flex-direction: column; }
+      .my-hospitals-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="dot-bg dash-body">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- STICKY TOPBAR HEADER -->
+  <div class="dash-topbar">
+    <div class="topbar-left">
+      <button id="sidebarToggleInline" onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text-primary);display:none;">
+        <i class='bx bx-menu'></i>
+      </button>
+      <div>
+        <div class="topbar-title">{{ patient.full_name }}</div>
+        <div class="topbar-subtitle">
+          Code: <strong>{{ patient.emergency_code }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-stat">
+        <div class="topbar-stat-val">{{ upcoming_count }}</div>
+        <div class="topbar-stat-lbl">Upcoming</div>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-stat">
+        <div class="topbar-stat-val">{{ records|length }}</div>
+        <div class="topbar-stat-lbl">Records</div>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-stat">
+        <div class="topbar-stat-val">{{ profile_completeness }}%</div>
+        <div class="topbar-stat-lbl">Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="dash-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="dash-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="dash-sidebar" id="dashSidebar">
+      <div class="dash-sidebar-user">
+        <div class="circle-icon emerald-icon">
+          <i class='bx bx-user-circle'></i>
+        </div>
+        <div>
+          <div class="dash-sidebar-user-name">{{ patient.full_name }}</div>
+          <div class="dash-sidebar-user-sub">{{ patient.emergency_code }}</div>
+        </div>
+      </div>
+
+      <nav class="dash-nav">
+        <a href="#overview" class="dash-nav-link active emerald-active" onclick="switchTab('overview','patient'); closeSidebarMobile()">
+          <i class='bx bx-grid-alt'></i> Overview
+        </a>
+        <a href="#hospitals" class="dash-nav-link" onclick="switchTab('hospitals','patient'); closeSidebarMobile()">
+          <i class='bx bx-building-house'></i> My Hospitals
+        </a>
+        <a href="#appointments" class="dash-nav-link" onclick="switchTab('appointments','patient'); closeSidebarMobile()">
+          <i class='bx bx-calendar-check'></i> Appointments
+        </a>
+        <a href="#book" class="dash-nav-link" onclick="switchTab('book','patient'); closeSidebarMobile()">
+          <i class='bx bx-calendar-plus'></i> Book Appointment
+        </a>
+        <a href="#records" class="dash-nav-link" onclick="switchTab('records','patient'); closeSidebarMobile()">
+          <i class='bx bx-heart-circle'></i> Medical Records
+        </a>
+        <a href="#profile" class="dash-nav-link" onclick="switchTab('profile','patient'); closeSidebarMobile()">
+          <i class='bx bx-id-card'></i> My Profile
+        </a>
+        <a href="#alerts" class="dash-nav-link" onclick="switchTab('alerts','patient'); closeSidebarMobile()">
+          <i class='bx bx-bell'></i> Emergency Alerts
+        </a>
+        <div class="dash-nav-divider"></div>
+        <a href="/logout" class="dash-nav-link dash-nav-logout">
+          <i class='bx bx-log-out'></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dash-main" data-panel-group="patient">
+
+      <!-- ===================== OVERVIEW ===================== -->
+      <section class="dash-tab-panel active" data-panel="overview">
+        <div class="dash-header">
+          <h1>Welcome, {{ patient.full_name.split(' ')[0] }} 👋</h1>
+          <p>Here's an overview of your Carelix health profile.</p>
+        </div>
+
+        <!-- Emergency code -->
+        <div class="code-box mt-12" style="margin-bottom: 24px;">
+          <div>
+            <div class="code-box-text">Your Emergency Code</div>
+            <div class="code-box-value">{{ patient.emergency_code }}</div>
+          </div>
+          <button class="code-copy-btn" onclick="copyText('{{ patient.emergency_code }}', this)">
+            <i class='bx bx-copy'></i> Copy Code
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stat-grid">
+          <div class="stat-card glass">
+            <div class="stat-card-icon blue"><i class='bx bx-calendar-check'></i></div>
+            <div class="stat-card-value">{{ upcoming_count }}</div>
+            <div class="stat-card-label">Upcoming Appointments</div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-card-icon emerald"><i class='bx bx-file-blank'></i></div>
+            <div class="stat-card-value">{{ records|length }}</div>
+            <div class="stat-card-label">Medical Records</div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-card-icon amber"><i class='bx bx-bell'></i></div>
+            <div class="stat-card-value">{{ alerts|length }}</div>
+            <div class="stat-card-label">Emergency Alerts</div>
+          </div>
+          <div class="stat-card glass">
+            <div class="stat-card-icon rose"><i class='bx bx-heart'></i></div>
+            <div class="stat-card-value">{{ profile_completeness }}%</div>
+            <div class="stat-card-label">Profile Complete</div>
+          </div>
+        </div>
+
+        <!-- Profile completeness -->
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-pie-chart-alt'></i> Profile Completeness</h2>
+          </div>
+          <p class="text-muted">Keep your profile up to date so hospitals have accurate emergency information.</p>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: {{ profile_completeness }}%;"></div>
+          </div>
+        </div>
+
+        <!-- Enrolled hospitals quick view -->
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-building-house'></i> My Hospitals</h2>
+            <a href="#hospitals" class="btn btn-outline btn-sm" onclick="switchTab('hospitals','patient')">Manage</a>
+          </div>
+          {% if my_hospitals %}
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            {% for h in my_hospitals %}
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--surface-1,rgba(0,0,0,0.03)); border-radius:12px; flex-wrap:wrap; gap:8px;">
+              <div>
+                <div style="font-weight:600; font-size:0.9rem;">{{ h.name }}</div>
+                <div style="font-size:0.76rem; color:var(--text-muted);">{{ h.address }}</div>
+              </div>
+              {% if h.card_status == 'active' %}
+              <span class="my-hospital-card-badge active"><i class='bx bx-check-circle'></i> Card Active</span>
+              {% else %}
+              <span class="my-hospital-card-badge no-card"><i class='bx bx-credit-card'></i> No Card</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-building-house'></i>
+            You haven't registered under any hospital yet.
+            <a href="#hospitals" onclick="switchTab('hospitals','patient')" style="display:inline-flex; align-items:center; gap:6px; margin-top:12px;" class="btn btn-outline btn-sm">Register now</a>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Upcoming appointments preview -->
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-calendar-check'></i> Upcoming Appointments</h2>
+            <a href="#appointments" class="btn btn-outline btn-sm" onclick="switchTab('appointments','patient')">View all</a>
+          </div>
+          {% if upcoming_appointments %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Date &amp; Time</th><th>Hospital</th><th>Doctor</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {% for appt in upcoming_appointments %}
+                <tr>
+                  <td>{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td>{{ appt.hospital.name }}</td>
+                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-calendar-x'></i>
+            No upcoming appointments yet.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== MY HOSPITALS ===================== -->
+      <section class="dash-tab-panel" data-panel="hospitals">
+        <div class="dash-header">
+          <h1>My Hospitals</h1>
+          <p>Register under hospitals using their Hospital ID. You must be registered at a hospital to book appointments there.</p>
+        </div>
+
+        <!-- Enrol under a hospital -->
+        <div class="enroll-form-box" style="margin-bottom: 24px;">
+          <h3><i class='bx bx-plus-circle' style="margin-right:6px;"></i> Register Under a Hospital</h3>
+          <p class="text-muted" style="font-size:0.82rem; margin:0;">Ask the hospital staff for their <strong>Hospital ID</strong>, then enter it below to enrol.</p>
+          <form method="POST" action="/patient/enroll-hospital">
+            <div class="enroll-form-row">
+              <div class="dash-form-group">
+                <label>Hospital ID <span style="color:#ef4444">*</span></label>
+                <input type="number" name="hospital_id" placeholder="e.g. 12" required min="1" />
+              </div>
+              <button type="submit" class="btn btn-emerald" style="height:46px; white-space:nowrap;">
+                <i class='bx bx-log-in-circle'></i> Enrol
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Registered hospitals list -->
+        {% if my_hospitals %}
+        <div class="my-hospitals-grid">
+          {% for h in my_hospitals %}
+          <div class="my-hospital-card {% if h.card_status == 'active' %}has-card{% endif %}">
+            <div class="my-hospital-card-name">{{ h.name }}</div>
+            <div class="my-hospital-card-meta">
+              <span><i class='bx bx-map-pin'></i> {{ h.address }}</span>
+              <span><i class='bx bx-phone'></i> {{ h.phone or 'No phone listed' }}</span>
+              <span><i class='bx bx-id-card'></i> Hospital ID: {{ h.id }}</span>
+            </div>
+
+            {% if h.card_status == 'active' %}
+            <div class="my-hospital-card-badge active"><i class='bx bx-check-circle'></i> Hospital Card Active</div>
+            {% elif h.card_status == 'pending' %}
+            <div class="my-hospital-card-badge pending"><i class='bx bx-time-five'></i> Card Payment Pending</div>
+            {% else %}
+            <div class="my-hospital-card-badge no-card"><i class='bx bx-credit-card'></i> No Card — get one below</div>
+
+            <!-- Hospital Card offer -->
+            <div class="hcard-offer">
+              <div class="hcard-offer-header">
+                <div class="hcard-offer-header-left">
+                  <h4>{{ h.name }} Health Card</h4>
+                  <p>Annual card for registered patients</p>
+                </div>
+                <div class="hcard-price">₦{{ "{:,.0f}".format(h.card_price) }}</div>
+              </div>
+              <div class="hcard-offer-body">
+                <ul class="hcard-perks">
+                  <li><i class='bx bx-check-circle'></i> Priority appointment booking</li>
+                  <li><i class='bx bx-check-circle'></i> Full access to doctor slots at this hospital</li>
+                  <li><i class='bx bx-check-circle'></i> Medical records stored under this hospital</li>
+                  <li><i class='bx bx-check-circle'></i> Valid for 1 year from activation</li>
+                </ul>
+                <div class="payment-coming-soon">
+                  <i class='bx bx-time'></i>
+                  <div>
+                    <strong style="display:block; margin-bottom:2px;">Payment not yet available</strong>
+                    OPay payment integration is coming soon. You'll be notified once it's ready.
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="dash-section glass">
+          <div class="dash-empty">
+            <i class='bx bx-building-house'></i>
+            You haven't registered under any hospital yet. Enter a Hospital ID above to get started.
+          </div>
+        </div>
+        {% endif %}
+      </section>
+
+      <!-- ===================== APPOINTMENTS ===================== -->
+      <section class="dash-tab-panel" data-panel="appointments">
+        <div class="dash-header">
+          <h1>My Appointments</h1>
+          <p>Track and manage all your bookings.</p>
+        </div>
+
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-calendar'></i> All Appointments</h2>
+          </div>
+          {% if appointments %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Date &amp; Time</th><th>Hospital</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {% for appt in appointments %}
+                <tr>
+                  <td>{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td>{{ appt.hospital.name }}</td>
+                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td class="wrap">{{ appt.reason or '—' }}</td>
+                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                  <td>
+                    {% if appt.status in ['pending','confirmed'] %}
+                    <form method="POST" action="/patient/appointment/{{ appt.id }}/cancel" onsubmit="return confirmSubmit('Cancel this appointment?')">
+                      <button type="submit" class="btn btn-danger btn-sm"><i class='bx bx-x'></i> Cancel</button>
+                    </form>
+                    {% else %}
+                    —
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-calendar-x'></i>
+            You have no appointments yet.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== BOOK APPOINTMENT ===================== -->
+      <section class="dash-tab-panel" data-panel="book">
+        <div class="dash-header">
+          <h1>Book an Appointment</h1>
+          <p>Choose from hospitals you're registered under, then pick a doctor and time slot.</p>
+        </div>
+
+        {% if not my_hospitals %}
+        <!-- Not registered anywhere — lock booking -->
+        <div class="dash-section glass">
+          <div class="booking-locked-notice">
+            <i class='bx bx-lock-alt'></i>
+            <div class="booking-locked-notice-text">
+              <strong>You must register under a hospital first</strong>
+              <span>You can only book appointments at hospitals you're enrolled in. Go to <a href="#hospitals" onclick="switchTab('hospitals','patient')" style="color:#6366f1;font-weight:600;">My Hospitals</a> to register using a Hospital ID.</span>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="dash-section glass">
+          <form method="POST" action="/patient/book">
+            <div class="dash-form-grid">
+              <div class="dash-form-group">
+                <label for="hospital_id">Hospital <span style="color:#ef4444">*</span></label>
+                <select name="hospital_id" id="hospital_id" required onchange="filterDoctors(this.value)">
+                  <option value="">Select a hospital…</option>
+                  {% for h in my_hospitals %}
+                  <option value="{{ h.id }}">{{ h.name }}</option>
+                  {% endfor %}
+                </select>
+                <small style="font-size:0.73rem; color:var(--text-muted); margin-top:4px; display:block;">Only hospitals you've enrolled in are shown.</small>
+              </div>
+              <div class="dash-form-group">
+                <label for="doctor_id">Doctor</label>
+                <select name="doctor_id" id="doctor_id">
+                  <option value="">Select a hospital first…</option>
+                </select>
+              </div>
+              <div class="dash-form-group">
+                <label for="appointment_date">Date <span style="color:#ef4444">*</span></label>
+                <input type="date" name="appointment_date" id="appointment_date" required min="{{ today }}" />
+              </div>
+              <div class="dash-form-group">
+                <label for="appointment_time">Time <span style="color:#ef4444">*</span></label>
+                <input type="time" name="appointment_time" id="appointment_time" required />
+              </div>
+              <div class="dash-form-group full">
+                <label for="reason">Reason for visit</label>
+                <textarea name="reason" id="reason" placeholder="Briefly describe your reason for visiting…"></textarea>
+              </div>
+            </div>
+            <div class="dash-form-actions">
+              <button type="submit" class="btn btn-emerald"><i class='bx bx-calendar-plus'></i> Book Appointment</button>
+            </div>
+          </form>
+        </div>
+
+        {% if doctors %}
+        <div class="dash-section glass">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-stethoscope'></i> Available Doctors at My Hospitals</h2>
+          </div>
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Doctor</th><th>Specialty</th><th>Hospital</th><th>Available Days</th><th>Hours</th></tr>
+              </thead>
+              <tbody>
+                {% for d in doctors %}
+                <tr data-hospital="{{ d.hospital_id }}">
+                  <td>{{ d.name }}</td>
+                  <td>{{ d.specialty }}</td>
+                  <td>{{ d.hospital.name }}</td>
+                  <td>{{ d.available_days }}</td>
+                  <td>{{ d.start_time.strftime('%I:%M %p') }} – {{ d.end_time.strftime('%I:%M %p') }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+        {% endif %}
+      </section>
+
+      <!-- ===================== MEDICAL RECORDS ===================== -->
+      <section class="dash-tab-panel" data-panel="records">
+        <div class="dash-header">
+          <h1>Medical Records</h1>
+          <p>View test results, prescriptions, and diagnoses added by hospitals.</p>
+        </div>
+
+        <div class="dash-section glass">
+          {% if records %}
+            {% for rec in records %}
+            <div class="record-card">
+              <div class="record-card-head">
+                <strong>{{ rec.hospital.name }}</strong>
+                <span class="text-muted">{{ rec.visit_date.strftime('%d %b %Y') }}</span>
+              </div>
+              {% if rec.doctor %}
+              <div class="record-card-row"><span>Doctor:</span>{{ rec.doctor.name }} ({{ rec.doctor.specialty }})</div>
+              {% endif %}
+              <div class="record-card-row"><span>Diagnosis:</span>{{ rec.diagnosis or '—' }}</div>
+              <div class="record-card-row"><span>Prescription:</span>{{ rec.prescription or '—' }}</div>
+              <div class="record-card-row"><span>Test Results:</span>{{ rec.test_results or '—' }}</div>
+              {% if rec.notes %}
+              <div class="record-card-row"><span>Notes:</span>{{ rec.notes }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-file-blank'></i>
+            No medical records yet. Records added by hospitals after your visits will appear here.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <!-- ===================== PROFILE ===================== -->
+      <section class="dash-tab-panel" data-panel="profile">
+        <div class="dash-header">
+          <h1>My Profile</h1>
+          <p>Update your personal, medical, and emergency contact information.</p>
+        </div>
+
+        <div class="dash-section glass">
+          <form method="POST" action="/patient/profile">
+            <div class="dash-form-grid">
+              <div class="dash-form-group">
+                <label>Full Name</label>
+                <input type="text" name="full_name" value="{{ patient.full_name }}" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Date of Birth</label>
+                <input type="date" name="date_of_birth" value="{{ patient.date_of_birth }}" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Gender</label>
+                <select name="gender">
+                  <option value="" {% if not patient.gender %}selected{% endif %}>Select…</option>
+                  <option value="Male" {% if patient.gender=='Male' %}selected{% endif %}>Male</option>
+                  <option value="Female" {% if patient.gender=='Female' %}selected{% endif %}>Female</option>
+                </select>
+              </div>
+              <div class="dash-form-group">
+                <label>Blood Type</label>
+                <select name="blood_type">
+                  <option value="">Select…</option>
+                  {% for bt in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                  <option value="{{ bt }}" {% if patient.blood_type==bt %}selected{% endif %}>{{ bt }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="dash-form-group">
+                <label>Genotype</label>
+                <select name="genotype">
+                  <option value="">Select…</option>
+                  {% for gt in ['AA','AS','SS','AC','SC'] %}
+                  <option value="{{ gt }}" {% if patient.genotype==gt %}selected{% endif %}>{{ gt }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="dash-form-group full">
+                <label>Allergies</label>
+                <textarea name="allergies" placeholder="e.g. Penicillin, Peanuts">{{ patient.allergies }}</textarea>
+              </div>
+              <div class="dash-form-group full">
+                <label>Chronic Conditions</label>
+                <textarea name="chronic_conditions" placeholder="e.g. Asthma, Diabetes">{{ patient.chronic_conditions }}</textarea>
+              </div>
+              <div class="dash-form-group full">
+                <label>Current Medications</label>
+                <textarea name="current_medications" placeholder="e.g. Metformin 500mg">{{ patient.current_medications }}</textarea>
+              </div>
+            </div>
+
+            <div class="section-divider"></div>
+            <h3 style="font-family: var(--ff-display); margin-bottom: 14px;">Emergency Contact</h3>
+            <div class="dash-form-grid">
+              <div class="dash-form-group">
+                <label>Contact Name</label>
+                <input type="text" name="emergency_contact_name" value="{{ patient.emergency_contact_name }}" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Contact Email (used for Carelix alerts)</label>
+                <input type="email" name="emergency_contact_email" value="{{ patient.emergency_contact_email }}" required />
+              </div>
+              <div class="dash-form-group">
+                <label>Contact Phone</label>
+                <input type="tel" name="emergency_contact_phone" value="{{ patient.emergency_contact_phone or '' }}" />
+              </div>
+            </div>
+
+            <div class="dash-form-actions">
+              <button type="submit" class="btn btn-emerald"><i class='bx bx-save'></i> Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ===================== EMERGENCY ALERTS ===================== -->
+      <section class="dash-tab-panel" data-panel="alerts">
+        <div class="dash-header">
+          <h1>Emergency Profile Alerts</h1>
+          <p>Every time a hospital looks up your emergency profile, your emergency contact gets an email — logged here.</p>
+        </div>
+
+        <div class="dash-section glass">
+          {% if alerts %}
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr><th>Date</th><th>Hospital</th><th>Sent To</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {% for a in alerts %}
+                <tr>
+                  <td>{{ a.sent_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td>{{ a.hospital.name if a.hospital else '—' }}</td>
+                  <td>{{ a.recipient_email }}</td>
+                  <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="dash-empty">
+            <i class='bx bx-bell-off'></i>
+            No emergency profile accesses have been recorded yet.
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile sidebar toggle FAB -->
+  <button class="dash-mobile-toggle" id="sidebarToggleBtn" onclick="toggleSidebar()">
+    <i class='bx bx-menu'></i>
+  </button>
+
+  <script src="../static/js/auth.js"></script>
+  <script src="../static/js/dashboard.js"></script>
+  <script>
+    // Build a doctor map by hospital_id for the dynamic select
+    const doctorsByHospital = {
+      {% for d in doctors %}
+      {% if loop.first %}{% endif %}
+      "{{ d.hospital_id }}": (doctorsByHospital && doctorsByHospital["{{ d.hospital_id }}"]) ? doctorsByHospital["{{ d.hospital_id }}"] : [],
+      {% endfor %}
+    };
+    // Rebuild properly
+    const _docMap = {};
+    {% for d in doctors %}
+    if (!_docMap["{{ d.hospital_id }}"]) _docMap["{{ d.hospital_id }}"] = [];
+    _docMap["{{ d.hospital_id }}"].push({ id: "{{ d.id }}", name: "{{ d.name }}", specialty: "{{ d.specialty }}" });
+    {% endfor %}
+
+    function filterDoctors(hospitalId) {
+      const sel = document.getElementById('doctor_id');
+      sel.innerHTML = '<option value="">Any available doctor</option>';
+      if (hospitalId && _docMap[hospitalId]) {
+        _docMap[hospitalId].forEach(function(d) {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.name + ' — ' + d.specialty;
+          sel.appendChild(opt);
+        });
+      }
+    }
+
+    // Mobile sidebar
+    function closeSidebarMobile() {
+      if (window.innerWidth <= 768) toggleSidebar();
+    }
+    function toggleSidebar() {
+      const sidebar = document.getElementById('dashSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const isOpen  = sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', !isOpen);
+      if (overlay) overlay.classList.toggle('active', !isOpen);
+    }
+    (function() {
+      const inlineBtn = document.getElementById('sidebarToggleInline');
+      if (inlineBtn) {
+        const mq = window.matchMedia('(max-width: 768px)');
+        function update(e) { inlineBtn.style.display = e.matches ? 'inline-flex' : 'none'; }
+        mq.addEventListener('change', update);
+        update(mq);
+      }
+    })();
+  </script>
+</body>
+</html>

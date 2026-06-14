@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Patient Sign In</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/auth.css" />
+</head>
+<body class="dot-bg">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="auth-container">
+
+      <!-- LEFT PANEL -->
+      <div class="auth-panel-left" data-reveal="left">
+        <div class="panel-badge emerald"><i class='bx bx-user-circle'></i> Patient Sign In</div>
+        <h1 class="panel-title">Welcome Back,<br><span class="accent-emerald">Carelix Patient.</span></h1>
+        <p class="panel-desc">Access your complete medical profile, view appointment history, manage your health records, and get your emergency code anytime.</p>
+
+        <!-- Features -->
+        <div class="panel-perks">
+          <div class="perk">
+            <div class="perk-icon emerald"><i class='bx bxs-shield-plus'></i></div>
+            <div>
+              <div class="perk-title">Your Emergency Code</div>
+              <div class="perk-desc">Access your unique 5-digit code anytime.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon blue"><i class='bx bx-calendar-check'></i></div>
+            <div>
+              <div class="perk-title">Manage Appointments</div>
+              <div class="perk-desc">Book and track appointments with hospitals.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon mixed"><i class='bx bx-heart-circle'></i></div>
+            <div>
+              <div class="perk-title">Medical Records</div>
+              <div class="perk-desc">View all your test results and prescriptions.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sign up link -->
+        <div class="panel-already">
+          Don't have an account? <a href="/patient/register">Create one now <i class='bx bx-right-arrow-alt'></i></a>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: FORM -->
+      <div class="auth-panel-right" data-reveal="right">
+        <div class="form-box glass">
+
+          <div class="form-header">
+            <div class="circle-icon form-icon-lg emerald-icon">
+              <i class='bx bx-user-circle'></i>
+            </div>
+            <div class="form-header-text">
+              <h2>Patient Sign In</h2>
+              <p>Access your health dashboard</p>
+            </div>
+          </div>
+
+          <form id="patientLoginForm" action="/patient/login" method="POST" novalidate>
+
+            <div class="form-group">
+              <label for="email">Email Address <span class="req">*</span></label>
+              <div class="input-wrap">
+                <i class='bx bx-envelope'></i>
+                <input type="email" id="email" name="email" placeholder="emeka@example.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <i class='bx bx-lock'></i>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                <button type="button" class="toggle-pw" onclick="togglePw('password', this)">
+                  <i class='bx bx-show'></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row-flex">
+              <div class="form-check">
+                <input type="checkbox" id="remember" name="remember" />
+                <label for="remember">Remember me</label>
+              </div>
+              <a href="#" class="forgot-pw">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-emerald form-submit" id="submitBtn">
+              <i class='bx bx-right-arrow-alt'></i> Sign In
+            </button>
+
+            <div class="form-loader" id="formLoader">
+              <div class="spinner emerald-spinner"></div> Signing you in…
+            </div>
+
+            <!-- Divider -->
+            <div class="form-divider">or</div>
+
+            <!-- Login as hospital -->
+            <div class="form-alt-login">
+              <p>Are you a hospital staff member?</p>
+              <a href="/hospital/login" class="btn btn-outline" style="width: 100%; margin-top: 0.75rem;">
+                <i class='bx bx-buildings'></i> Hospital Staff Login
+              </a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../static/js/auth.js"></script>
+  <script>
+    document.getElementById('patientLoginForm').addEventListener('submit', function() {
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('formLoader').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>

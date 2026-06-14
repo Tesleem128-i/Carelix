@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Patient Registration</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/auth.css" />
+</head>
+<body class="dot-bg">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+        <a href="/login" class="btn btn-outline nav-login">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="auth-container">
+
+      <!-- LEFT PANEL -->
+      <div class="auth-panel-left" data-reveal="left">
+        <div class="panel-badge emerald"><i class='bx bx-user-circle'></i> Patient Registration</div>
+        <h1 class="panel-title">Your Health,<br><span class="accent-emerald">One Code.</span><br>Every Hospital.</h1>
+        <p class="panel-desc">Register once and receive your personal Carelix health identity — a unique emergency code that any Nigerian hospital can use to access your medical history instantly.</p>
+
+        <!-- Code preview -->
+        <div class="code-preview glass">
+          <div class="code-preview-label"><i class='bx bxs-shield-plus'></i> Your Emergency Code</div>
+          <div class="code-preview-value">84729<span>-</span>XKP</div>
+          <div class="code-preview-hint">Memorise this. It could save your life.</div>
+        </div>
+
+        <div class="panel-perks">
+          <div class="perk">
+            <div class="perk-icon blue"><i class='bx bx-heart-circle'></i></div>
+            <div>
+              <div class="perk-title">Complete Medical Profile</div>
+              <div class="perk-desc">Store blood type, allergies, conditions, and medications securely.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon emerald"><i class='bx bx-calendar-check'></i></div>
+            <div>
+              <div class="perk-title">Book Appointments Online</div>
+              <div class="perk-desc">See doctor availability and book slots directly from your dashboard.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon mixed"><i class='bx bx-bell'></i></div>
+            <div>
+              <div class="perk-title">Emergency Alerts</div>
+              <div class="perk-desc">Your next of kin gets notified whenever your profile is accessed in an emergency.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-already">
+          Already have an account? <a href="/patient/login">Sign in to your dashboard <i class='bx bx-right-arrow-alt'></i></a>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: FORM -->
+      <div class="auth-panel-right" data-reveal="right">
+        <div class="form-box glass">
+
+          <div class="form-header">
+            <div class="circle-icon form-icon-lg emerald-icon">
+              <i class='bx bx-user-circle'></i>
+            </div>
+            <div class="form-header-text">
+              <h2>Patient Registration</h2>
+              <p>Create your Carelix health identity</p>
+            </div>
+          </div>
+
+          <!-- STEP INDICATOR -->
+          <div class="steps">
+            <div class="step active" id="step-dot-1"><span>1</span><label>Personal Info</label></div>
+            <div class="step-line"></div>
+            <div class="step" id="step-dot-2"><span>2</span><label>Health Profile</label></div>
+            <div class="step-line"></div>
+            <div class="step" id="step-dot-3"><span>3</span><label>Emergency Contact</label></div>
+            <div class="step-line"></div>
+            <div class="step" id="step-dot-4"><span>4</span><label>Account</label></div>
+          </div>
+
+          <form id="patientForm" action="/patient/register" method="POST" enctype="multipart/form-data" novalidate>
+
+            <!-- STEP 1: Personal Info -->
+            <div class="form-step active" id="step-1">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="first_name">First Name <span class="req">*</span></label>
+                  <div class="input-wrap">
+                    <i class='bx bx-user'></i>
+                    <input type="text" id="first_name" name="first_name" placeholder="Emeka" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="last_name">Last Name <span class="req">*</span></label>
+                  <div class="input-wrap">
+                    <i class='bx bx-user'></i>
+                    <input type="text" id="last_name" name="last_name" placeholder="Okafor" required />
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dob">Date of Birth <span class="req">*</span></label>
+                  <div class="input-wrap">
+                    <i class='bx bx-calendar'></i>
+                    <input type="date" id="dob" name="date_of_birth" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="gender">Gender <span class="req">*</span></label>
+                  <div class="input-wrap select-wrap">
+                    <i class='bx bx-body'></i>
+                    <select id="gender" name="gender" required>
+                      <option value="">Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-phone'></i>
+                  <input type="tel" id="phone" name="phone" placeholder="08012345678" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="address">Residential Address</label>
+                <div class="input-wrap">
+                  <i class='bx bx-map'></i>
+                  <input type="text" id="address" name="address" placeholder="14 Allen Avenue, Ikeja, Lagos" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="photo">Profile Photo (optional)</label>
+                <div class="file-upload" id="fileUpload">
+                  <i class='bx bx-image-add'></i>
+                  <span>Click to upload or drag & drop</span>
+                  <input type="file" id="photo" name="photo" accept="image/*" onchange="previewPhoto(this)" />
+                </div>
+                <img id="photoPreview" class="photo-preview" src="" alt="" style="display:none" />
+              </div>
+              <button type="button" class="btn btn-primary step-next" onclick="nextStep(1)">
+                Continue <i class='bx bx-right-arrow-alt'></i>
+              </button>
+            </div>
+
+            <!-- STEP 2: Health Profile -->
+            <div class="form-step" id="step-2">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="blood_type">Blood Type <span class="req">*</span></label>
+                  <div class="input-wrap select-wrap">
+                    <i class='bx bx-droplet'></i>
+                    <select id="blood_type" name="blood_type" required>
+                      <option value="">Select</option>
+                      <option>A+</option><option>A-</option>
+                      <option>B+</option><option>B-</option>
+                      <option>AB+</option><option>AB-</option>
+                      <option>O+</option><option>O-</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="genotype">Genotype <span class="req">*</span></label>
+                  <div class="input-wrap select-wrap">
+                    <i class='bx bx-dna'></i>
+                    <select id="genotype" name="genotype" required>
+                      <option value="">Select</option>
+                      <option>AA</option><option>AS</option>
+                      <option>SS</option><option>AC</option>
+                      <option>SC</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="allergies">Known Allergies</label>
+                <div class="input-wrap">
+                  <i class='bx bx-error-circle'></i>
+                  <textarea id="allergies" name="allergies" placeholder="e.g. Penicillin, Peanuts, Latex (leave blank if none)" rows="2"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="chronic_conditions">Chronic Conditions / Diagnoses</label>
+                <div class="input-wrap">
+                  <i class='bx bx-heart'></i>
+                  <textarea id="chronic_conditions" name="chronic_conditions" placeholder="e.g. Hypertension, Diabetes Type 2, Asthma (leave blank if none)" rows="2"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="current_medications">Current Medications</label>
+                <div class="input-wrap">
+                  <i class='bx bx-capsule'></i>
+                  <textarea id="current_medications" name="current_medications" placeholder="e.g. Lisinopril 10mg daily, Metformin 500mg twice daily (leave blank if none)" rows="2"></textarea>
+                </div>
+              </div>
+              <div class="step-btns">
+                <button type="button" class="btn btn-outline" onclick="prevStep(2)">
+                  <i class='bx bx-left-arrow-alt'></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                  Continue <i class='bx bx-right-arrow-alt'></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3: Emergency Contact -->
+            <div class="form-step" id="step-3">
+              <div class="emergency-notice glass">
+                <i class='bx bxs-bell-ring'></i>
+                <div>
+                  <strong>Why we need this</strong>
+                  <p>Whenever a hospital accesses your emergency profile, your contact will be automatically notified by email.</p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="ec_name">Next of Kin / Emergency Contact Name <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-user-pin'></i>
+                  <input type="text" id="ec_name" name="emergency_contact_name" placeholder="Ngozi Okafor" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="ec_relationship">Relationship <span class="req">*</span></label>
+                <div class="input-wrap select-wrap">
+                  <i class='bx bx-group'></i>
+                  <select id="ec_relationship" name="emergency_contact_relationship" required>
+                    <option value="">Select relationship</option>
+                    <option>Spouse</option><option>Parent</option><option>Child</option>
+                    <option>Sibling</option><option>Friend</option><option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="ec_email">Emergency Contact Email <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-envelope'></i>
+                  <input type="email" id="ec_email" name="emergency_contact_email" placeholder="ngozi@example.com" required />
+                </div>
+                <span class="field-hint">This email receives alerts when your emergency profile is accessed</span>
+              </div>
+              <div class="form-group">
+                <label for="ec_phone">Emergency Contact Phone (optional)</label>
+                <div class="input-wrap">
+                  <i class='bx bx-phone'></i>
+                  <input type="tel" id="ec_phone" name="emergency_contact_phone" placeholder="08098765432" />
+                </div>
+              </div>
+              <div class="step-btns">
+                <button type="button" class="btn btn-outline" onclick="prevStep(3)">
+                  <i class='bx bx-left-arrow-alt'></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                  Continue <i class='bx bx-right-arrow-alt'></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 4: Account -->
+            <div class="form-step" id="step-4">
+              <div class="form-group">
+                <label for="reg_email">Email Address <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-envelope'></i>
+                  <input type="email" id="reg_email" name="email" placeholder="emeka@example.com" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="pat_password">Password <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-lock'></i>
+                  <input type="password" id="pat_password" name="password" placeholder="Min. 8 characters" required />
+                  <button type="button" class="toggle-pw" onclick="togglePw('pat_password', this)">
+                    <i class='bx bx-show'></i>
+                  </button>
+                </div>
+                <div class="pw-strength" id="pwStrength">
+                  <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
+                  <span id="pwLabel"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="pat_confirm">Confirm Password <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-lock-alt'></i>
+                  <input type="password" id="pat_confirm" name="confirm_password" placeholder="Re-enter your password" required />
+                  <button type="button" class="toggle-pw" onclick="togglePw('pat_confirm', this)">
+                    <i class='bx bx-show'></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-check">
+                <input type="checkbox" id="agree" name="agree" required />
+                <label for="agree">I agree to Carelix's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+              </div>
+
+              <div class="step-btns">
+                <button type="button" class="btn btn-outline" onclick="prevStep(4)">
+                  <i class='bx bx-left-arrow-alt'></i> Back
+                </button>
+                <button type="submit" class="btn btn-emerald" id="submitBtn">
+                  <i class='bx bx-user-plus'></i> Create My Account
+                </button>
+              </div>
+
+              <div class="form-loader" id="formLoader">
+                <div class="spinner emerald-spinner"></div> Creating your health identity…
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../static/js/auth.js"></script>
+  <script>
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function nextStep(from) {
+      if (!validateStep(from)) return;
+      setStep(from + 1);
+    }
+    function prevStep(from) { setStep(from - 1); }
+
+    function setStep(n) {
+      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+      document.querySelectorAll('.step').forEach((s, i) => {
+        s.classList.toggle('active', i < n);
+        s.classList.toggle('done', i < n - 1);
+      });
+      currentStep = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateStep(n) {
+      const step = document.getElementById('step-' + n);
+      const inputs = step.querySelectorAll('[required]');
+      let valid = true;
+      inputs.forEach(input => {
+        input.classList.remove('error');
+        if (!input.value.trim()) { input.classList.add('error'); valid = false; }
+      });
+      if (!valid) { const first = step.querySelector('.error'); if (first) first.focus(); }
+      return valid;
+    }
+
+    function previewPhoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const preview = document.getElementById('photoPreview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          document.getElementById('fileUpload').style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    document.getElementById('pat_password').addEventListener('input', function() {
+      const val = this.value;
+      const fill = document.getElementById('pwFill');
+      const label = document.getElementById('pwLabel');
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const levels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+      const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+      fill.style.width = (score * 25) + '%';
+      fill.style.background = colors[score];
+      label.textContent = levels[score] || '';
+      label.style.color = colors[score];
+    });
+
+    document.getElementById('patientForm').addEventListener('submit', function() {
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('formLoader').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>

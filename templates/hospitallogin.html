@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Hospital Staff Sign In</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/auth.css" />
+</head>
+<body class="dot-bg">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="auth-container">
+
+      <!-- LEFT PANEL -->
+      <div class="auth-panel-left" data-reveal="left">
+        <div class="panel-badge blue"><i class='bx bx-buildings'></i> Hospital Staff Sign In</div>
+        <h1 class="panel-title">Manage Your<br><span class="accent-blue">Hospital Operations.</span></h1>
+        <p class="panel-desc">Access your hospital dashboard, manage doctors, update patient records, handle appointments, and receive seamless payments via OPay.</p>
+
+        <!-- Features -->
+        <div class="panel-perks">
+          <div class="perk">
+            <div class="perk-icon blue"><i class='bx bx-search-alt-2'></i></div>
+            <div>
+              <div class="perk-title">Search Patients</div>
+              <div class="perk-desc">Find any patient by their emergency code instantly.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon mixed"><i class='bx bx-stethoscope'></i></div>
+            <div>
+              <div class="perk-title">Doctor Management</div>
+              <div class="perk-desc">Add doctors, manage schedules, and slots.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon emerald"><i class='bx bx-receipt'></i></div>
+            <div>
+              <div class="perk-title">Payment Tracking</div>
+              <div class="perk-desc">Track OPay payments and hospital card sales.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sign up link -->
+        <div class="panel-already">
+          Don't have a hospital account? <a href="/hospital/register">Register now <i class='bx bx-right-arrow-alt'></i></a>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: FORM -->
+      <div class="auth-panel-right" data-reveal="right">
+        <div class="form-box glass">
+
+          <div class="form-header">
+            <div class="circle-icon form-icon-lg blue-icon">
+              <i class='bx bx-buildings'></i>
+            </div>
+            <div class="form-header-text">
+              <h2>Hospital Staff Sign In</h2>
+              <p>Access your hospital dashboard</p>
+            </div>
+          </div>
+
+          <form id="hospitalLoginForm" action="/hospital/login" method="POST" novalidate>
+
+            <div class="form-group">
+              <label for="email">Email Address <span class="req">*</span></label>
+              <div class="input-wrap">
+                <i class='bx bx-envelope'></i>
+                <input type="email" id="email" name="email" placeholder="staff@hospital.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <i class='bx bx-lock'></i>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                <button type="button" class="toggle-pw" onclick="togglePw('password', this)">
+                  <i class='bx bx-show'></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row-flex">
+              <div class="form-check">
+                <input type="checkbox" id="remember" name="remember" />
+                <label for="remember">Remember me</label>
+              </div>
+              <a href="#" class="forgot-pw">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary form-submit" id="submitBtn">
+              <i class='bx bx-right-arrow-alt'></i> Sign In
+            </button>
+
+            <div class="form-loader" id="formLoader">
+              <div class="spinner primary-spinner"></div> Signing you in…
+            </div>
+
+            <!-- Divider -->
+            <div class="form-divider">or</div>
+
+            <!-- Login as patient -->
+            <div class="form-alt-login">
+              <p>Are you a patient?</p>
+              <a href="/patient/login" class="btn btn-outline" style="width: 100%; margin-top: 0.75rem;">
+                <i class='bx bx-user-circle'></i> Patient Login
+              </a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../static/js/auth.js"></script>
+  <script>
+    document.getElementById('hospitalLoginForm').addEventListener('submit', function() {
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('formLoader').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>

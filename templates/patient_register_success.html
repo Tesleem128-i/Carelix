@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Registration Successful</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/auth.css" />
+  <style>
+    /* ── Success page overrides ─────────────────────────────────── */
+    .success-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .success-card {
+      background: var(--glass-bg, rgba(255,255,255,0.85));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border, rgba(255,255,255,0.4));
+      border-radius: 1.5rem;
+      padding: 3rem 2.5rem;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .check-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+      animation: popIn 0.45s 0.15s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .check-circle i { font-size: 2.2rem; color: #fff; }
+
+    .success-card h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary, #0f172a);
+      margin: 0 0 0.4rem;
+    }
+
+    .success-card .sub {
+      font-size: 0.95rem;
+      color: var(--text-secondary, #64748b);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Emergency code block ─────────────────────────────────── */
+    .code-block {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-radius: 1.2rem;
+      padding: 1.75rem 1.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-block::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: rgba(16,185,129,0.12);
+      border-radius: 50%;
+    }
+
+    .code-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #10b981;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .code-value {
+      font-family: 'Sora', monospace;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .code-value span { color: #10b981; }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #e2e8f0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.5rem 1.1rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .copy-btn:hover { background: rgba(16,185,129,0.25); color: #10b981; }
+    .copy-btn.copied { background: rgba(16,185,129,0.25); color: #10b981; }
+
+    /* ── Warning strip ────────────────────────────────────────── */
+    .warn-strip {
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 0.85rem;
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      text-align: left;
+      margin-bottom: 1.75rem;
+    }
+
+    .warn-strip i { font-size: 1.2rem; color: #f59e0b; flex-shrink: 0; margin-top: 1px; }
+
+    .warn-strip p {
+      font-size: 0.84rem;
+      color: var(--text-secondary, #64748b);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .warn-strip strong { color: var(--text-primary, #0f172a); }
+
+    /* ── Action buttons ───────────────────────────────────────── */
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      flex-direction: column;
+    }
+
+    .btn-go-dash {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      padding: 0.75rem 1.6rem;
+      border-radius: 0.75rem;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(16,185,129,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-go-dash:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+
+    .btn-print {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: transparent;
+      border: 1px solid var(--border, #e2e8f0);
+      color: var(--text-secondary, #64748b);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.75rem 1.4rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-print:hover { border-color: #10b981; color: #10b981; }
+
+    /* ── Dark mode ────────────────────────────────────────────── */
+    [data-theme="dark"] .success-card {
+      background: rgba(15,23,42,0.85);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    [data-theme="dark"] .success-card h1 { color: #f1f5f9; }
+    [data-theme="dark"] .warn-strip p { color: #94a3b8; }
+    [data-theme="dark"] .warn-strip strong { color: #e2e8f0; }
+    [data-theme="dark"] .btn-print { border-color: rgba(255,255,255,0.15); color: #94a3b8; }
+
+    /* ── Print styles ─────────────────────────────────────────── */
+    @media print {
+      nav, .action-row, .warn-strip { display: none !important; }
+      .success-card { box-shadow: none; border: 2px solid #10b981; }
+    }
+  </style>
+</head>
+<body class="dot-bg">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="success-wrapper">
+      <div class="success-card">
+
+        <!-- Tick -->
+        <div class="check-circle">
+          <i class='bx bx-check'></i>
+        </div>
+
+        <h1>You're registered, {{ patient_name.split()[0] }}!</h1>
+        <p class="sub">Your Carelix health identity has been created and saved to our database.</p>
+
+        <!-- Emergency Code -->
+        <div class="code-block">
+          <div class="code-label">
+            <i class='bx bxs-shield-plus'></i> Your Emergency Code
+          </div>
+          <div class="code-value" id="emergencyCode">
+            {{ emergency_code.split('-')[0] }}<span>-</span>{{ emergency_code.split('-')[1] }}
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyCode()">
+            <i class='bx bx-copy'></i> Copy code
+          </button>
+        </div>
+
+        <!-- Warning -->
+        <div class="warn-strip">
+          <i class='bx bx-error-circle'></i>
+          <p>
+            <strong>Save this code now.</strong> It won't be shown again on this screen.
+            You can always find it on your dashboard after you log in.
+            In an emergency, any Nigerian hospital can use this code to access your medical profile instantly.
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-row">
+          <a href="/patient/login" class="btn-go-dash">
+            <i class='bx bx-layout'></i> Go to Dashboard
+          </a>
+          <button class="btn-print" onclick="window.print()">
+            <i class='bx bx-printer'></i> Print / Save
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="../static/js/auth.js"></script>
+  <script>
+    function copyCode() {
+      const code = "{{ emergency_code }}";
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('copied');
+        btn.innerHTML = "<i class='bx bx-check'></i> Copied!";
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = "<i class='bx bx-copy'></i> Copy code";
+        }, 2500);
+      }).catch(() => {
+        // Fallback for older browsers
+        const el = document.createElement('textarea');
+        el.value = code;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      });
+    }
+  </script>
+</body>
+</html>

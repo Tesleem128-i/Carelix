@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Register Your Hospital</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/auth.css" />
+</head>
+<body class="dot-bg">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <i class='bx bx-plus-medical'></i>
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <i class='bx bx-moon'></i>
+        </button>
+        <a href="/login" class="btn btn-outline nav-login">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="auth-container">
+
+      <!-- LEFT PANEL -->
+      <div class="auth-panel-left" data-reveal="left">
+        <div class="panel-badge"><i class='bx bx-buildings'></i> Hospital Registration</div>
+        <h1 class="panel-title">Join Nigeria's<br><span class="accent-blue">Healthcare</span><br>Network</h1>
+        <p class="panel-desc">Register your hospital on Carelix to manage patient records, list your doctors, accept OPay payments, and serve every Nigerian with a unified health identity.</p>
+
+        <div class="panel-perks">
+          <div class="perk">
+            <div class="perk-icon blue"><i class='bx bx-search-alt'></i></div>
+            <div>
+              <div class="perk-title">Instant Patient Lookup</div>
+              <div class="perk-desc">Search any patient by their 5-digit-3-letter emergency code.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon emerald"><i class='bx bx-money'></i></div>
+            <div>
+              <div class="perk-title">OPay Payment Integration</div>
+              <div class="perk-desc">Receive card payments directly to your hospital's OPay account.</div>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon mixed"><i class='bx bx-user-plus'></i></div>
+            <div>
+              <div class="perk-title">Doctor & Slot Management</div>
+              <div class="perk-desc">List doctors, set availability, and let patients book seamlessly.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-already">
+          Already registered? <a href="/hospital/login">Sign in to your dashboard <i class='bx bx-right-arrow-alt'></i></a>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: FORM -->
+      <div class="auth-panel-right" data-reveal="right">
+        <div class="form-box glass">
+
+          <div class="form-header">
+            <div class="circle-icon form-icon-lg">
+              <i class='bx bx-buildings'></i>
+            </div>
+            <div class="form-header-text">
+              <h2>Hospital Registration</h2>
+              <p>Fill in your hospital details below</p>
+            </div>
+          </div>
+
+          <!-- STEP INDICATOR -->
+          <div class="steps">
+            <div class="step active" id="step-dot-1"><span>1</span><label>Hospital Info</label></div>
+            <div class="step-line"></div>
+            <div class="step" id="step-dot-2"><span>2</span><label>Contact & Payment</label></div>
+            <div class="step-line"></div>
+            <div class="step" id="step-dot-3"><span>3</span><label>Account Setup</label></div>
+          </div>
+
+          <form id="hospitalForm" action="/hospital/register" method="POST" novalidate>
+
+            <!-- STEP 1: Hospital Info -->
+            <div class="form-step active" id="step-1">
+              <div class="form-group">
+                <label for="hospital_name">Hospital / Clinic Name <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-buildings'></i>
+                  <input type="text" id="hospital_name" name="hospital_name" placeholder="Lagos Island General Hospital" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="cac_number">CAC Registration Number <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-file'></i>
+                  <input type="text" id="cac_number" name="cac_number" placeholder="RC-123456" required />
+                </div>
+                <span class="field-hint">Your Corporate Affairs Commission registration number</span>
+              </div>
+              <div class="form-group">
+                <label for="hospital_type">Facility Type <span class="req">*</span></label>
+                <div class="input-wrap select-wrap">
+                  <i class='bx bx-category'></i>
+                  <select id="hospital_type" name="hospital_type" required>
+                    <option value="">Select facility type</option>
+                    <option value="general">General Hospital</option>
+                    <option value="specialist">Specialist Hospital</option>
+                    <option value="clinic">Clinic / Health Centre</option>
+                    <option value="teaching">Teaching Hospital</option>
+                    <option value="maternity">Maternity / Mother & Child</option>
+                    <option value="dental">Dental Clinic</option>
+                    <option value="eye">Eye Clinic</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="address">Full Address <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-map'></i>
+                  <textarea id="address" name="address" placeholder="12 Broad Street, Lagos Island, Lagos State" required rows="2"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="card_price">Hospital Card Price (₦) <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-tag'></i>
+                  <input type="number" id="card_price" name="card_price" placeholder="5000" min="0" required />
+                </div>
+                <span class="field-hint">The amount patients pay to get enrolled under your hospital</span>
+              </div>
+              <button type="button" class="btn btn-primary step-next" onclick="nextStep(1)">
+                Continue <i class='bx bx-right-arrow-alt'></i>
+              </button>
+            </div>
+
+            <!-- STEP 2: Contact & Payment -->
+            <div class="form-step" id="step-2">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="contact_name">Contact Person <span class="req">*</span></label>
+                  <div class="input-wrap">
+                    <i class='bx bx-user'></i>
+                    <input type="text" id="contact_name" name="contact_name" placeholder="Dr. Aisha Bello" required />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone Number <span class="req">*</span></label>
+                  <div class="input-wrap">
+                    <i class='bx bx-phone'></i>
+                    <input type="tel" id="phone" name="phone" placeholder="08012345678" required />
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="hospital_email">Hospital Email <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-envelope'></i>
+                  <input type="email" id="hospital_email" name="hospital_email" placeholder="admin@lagosisslandgeneral.ng" required />
+                </div>
+              </div>
+
+              <div class="opay-block">
+                <div class="opay-label"><i class='bx bx-wallet'></i> OPay Payment Details</div>
+                <p class="opay-hint">Patients pay hospital card fees directly to your OPay account.</p>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="opay_account_number">OPay Account Number <span class="req">*</span></label>
+                    <div class="input-wrap">
+                      <i class='bx bx-credit-card'></i>
+                      <input type="text" id="opay_account_number" name="opay_account_number" placeholder="7012345678" maxlength="10" required />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="opay_account_name">Account Name <span class="req">*</span></label>
+                    <div class="input-wrap">
+                      <i class='bx bx-user-check'></i>
+                      <input type="text" id="opay_account_name" name="opay_account_name" placeholder="Lagos Island General Hospital" required />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step-btns">
+                <button type="button" class="btn btn-outline" onclick="prevStep(2)">
+                  <i class='bx bx-left-arrow-alt'></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                  Continue <i class='bx bx-right-arrow-alt'></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3: Account Setup -->
+            <div class="form-step" id="step-3">
+              <div class="form-group">
+                <label for="admin_name">Admin Full Name <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-user'></i>
+                  <input type="text" id="admin_name" name="admin_name" placeholder="Dr. Emeka Okafor" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="reg_email">Login Email <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-envelope'></i>
+                  <input type="email" id="reg_email" name="email" placeholder="emeka@hospital.ng" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="password">Password <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-lock'></i>
+                  <input type="password" id="password" name="password" placeholder="Min. 8 characters" required />
+                  <button type="button" class="toggle-pw" onclick="togglePw('password', this)">
+                    <i class='bx bx-show'></i>
+                  </button>
+                </div>
+                <div class="pw-strength" id="pwStrength">
+                  <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
+                  <span id="pwLabel"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="confirm_password">Confirm Password <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class='bx bx-lock-alt'></i>
+                  <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required />
+                  <button type="button" class="toggle-pw" onclick="togglePw('confirm_password', this)">
+                    <i class='bx bx-show'></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-check">
+                <input type="checkbox" id="agree" name="agree" required />
+                <label for="agree">I agree to Carelix's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+              </div>
+
+              <div class="step-btns">
+                <button type="button" class="btn btn-outline" onclick="prevStep(3)">
+                  <i class='bx bx-left-arrow-alt'></i> Back
+                </button>
+                <button type="submit" class="btn btn-emerald" id="submitBtn">
+                  <i class='bx bx-buildings'></i> Register Hospital
+                </button>
+              </div>
+
+              <div class="form-loader" id="formLoader">
+                <div class="spinner"></div> Registering your hospital…
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../static/js/auth.js"></script>
+  <script>
+    // Step navigation
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    function nextStep(from) {
+      if (!validateStep(from)) return;
+      setStep(from + 1);
+    }
+    function prevStep(from) { setStep(from - 1); }
+
+    function setStep(n) {
+      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-' + n).classList.add('active');
+      document.querySelectorAll('.step').forEach((s, i) => {
+        s.classList.toggle('active', i < n);
+        s.classList.toggle('done', i < n - 1);
+      });
+      currentStep = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateStep(n) {
+      const step = document.getElementById('step-' + n);
+      const inputs = step.querySelectorAll('[required]');
+      let valid = true;
+      inputs.forEach(input => {
+        input.classList.remove('error');
+        if (!input.value.trim()) {
+          input.classList.add('error');
+          valid = false;
+        }
+      });
+      if (!valid) {
+        const first = step.querySelector('.error');
+        if (first) first.focus();
+      }
+      return valid;
+    }
+
+    // Password strength
+    document.getElementById('password').addEventListener('input', function() {
+      const val = this.value;
+      const fill = document.getElementById('pwFill');
+      const label = document.getElementById('pwLabel');
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const levels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+      const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+      fill.style.width = (score * 25) + '%';
+      fill.style.background = colors[score];
+      label.textContent = levels[score] || '';
+      label.style.color = colors[score];
+    });
+
+    // Submit loader
+    document.getElementById('hospitalForm').addEventListener('submit', function(e) {
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('formLoader').style.display = 'flex';
+    });
+  </script>
+</body>
+</html>
