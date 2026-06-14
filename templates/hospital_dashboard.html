@@ -56,23 +56,7 @@
     }
     .topbar-stat-lbl { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; }
 
-    /* ── SIDEBAR MOBILE ── */
-    .dash-sidebar-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 200;
-    }
-    .dash-sidebar-overlay.active { display: block; }
-    @media (max-width: 768px) {
-      .dash-sidebar {
-        position: fixed !important; left: -260px !important; top: 0;
-        height: 100vh; z-index: 210;
-        transition: left 0.25s ease;
-        box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-      }
-      .dash-sidebar.open { left: 0 !important; }
-      .dash-main { margin-left: 0 !important; }
-      .dash-mobile-toggle { display: flex !important; }
-    }
+    /* Sidebar mobile handled by dashboard.css */
 
     /* ── ENROLLMENT SECTION ── */
     .enroll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
@@ -310,11 +294,11 @@
               <tbody>
                 {% for appt in today_appointments %}
                 <tr>
-                  <td>{{ appt.appointment_datetime.strftime('%I:%M %p') }}</td>
-                  <td>{{ appt.patient.full_name }}</td>
-                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
-                  <td class="wrap">{{ appt.reason or '—' }}</td>
-                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                  <td data-label="Time">{{ appt.appointment_datetime.strftime('%I:%M %p') }}</td>
+                  <td data-label="Patient">{{ appt.patient.full_name }}</td>
+                  <td data-label="Doctor">{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td data-label="Reason" class="wrap">{{ appt.reason or '—' }}</td>
+                  <td data-label="Status"><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -515,11 +499,11 @@
               <tbody>
                 {% for appt in appointments %}
                 <tr>
-                  <td>{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
-                  <td>{{ appt.patient.full_name }}</td>
-                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
-                  <td class="wrap">{{ appt.reason or '—' }}</td>
-                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                  <td data-label="Date &amp; Time">{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td data-label="Patient">{{ appt.patient.full_name }}</td>
+                  <td data-label="Doctor">{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td data-label="Reason" class="wrap">{{ appt.reason or '—' }}</td>
+                  <td data-label="Status"><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
                   <td>
                     {% if appt.status == 'pending' %}
                     <form method="POST" action="/hospital/appointment/{{ appt.id }}/status" style="display:inline">
@@ -622,12 +606,12 @@
               <tbody>
                 {% for d in doctors %}
                 <tr>
-                  <td>{{ d.name }}</td>
-                  <td>{{ d.specialty }}</td>
-                  <td>{{ d.available_days }}</td>
-                  <td>{{ d.start_time.strftime('%I:%M %p') }} – {{ d.end_time.strftime('%I:%M %p') }}</td>
-                  <td>{{ d.slot_duration_mins }} min</td>
-                  <td>{{ d.max_daily_appointments }}</td>
+                  <td data-label="Name">{{ d.name }}</td>
+                  <td data-label="Specialty">{{ d.specialty }}</td>
+                  <td data-label="Days">{{ d.available_days }}</td>
+                  <td data-label="Hours">{{ d.start_time.strftime('%I:%M %p') }} – {{ d.end_time.strftime('%I:%M %p') }}</td>
+                  <td data-label="Slot">{{ d.slot_duration_mins }} min</td>
+                  <td data-label="Max/Day">{{ d.max_daily_appointments }}</td>
                   <td>
                     <form method="POST" action="/hospital/doctors/{{ d.id }}/delete" onsubmit="return confirmSubmit('Remove this doctor?')">
                       <button type="submit" class="btn btn-danger btn-sm"><i class='bx bx-trash'></i></button>
@@ -664,11 +648,11 @@
               <tbody>
                 {% for rec in medical_records %}
                 <tr>
-                  <td>{{ rec.visit_date.strftime('%d %b %Y') }}</td>
-                  <td>{{ rec.patient.full_name }}</td>
-                  <td>{{ rec.doctor.name if rec.doctor else '—' }}</td>
-                  <td class="wrap">{{ rec.diagnosis or '—' }}</td>
-                  <td class="wrap">{{ rec.prescription or '—' }}</td>
+                  <td data-label="Visit Date">{{ rec.visit_date.strftime('%d %b %Y') }}</td>
+                  <td data-label="Patient">{{ rec.patient.full_name }}</td>
+                  <td data-label="Doctor">{{ rec.doctor.name if rec.doctor else '—' }}</td>
+                  <td data-label="Diagnosis" class="wrap">{{ rec.diagnosis or '—' }}</td>
+                  <td data-label="Prescription" class="wrap">{{ rec.prescription or '—' }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -700,10 +684,10 @@
               <tbody>
                 {% for a in alerts %}
                 <tr>
-                  <td>{{ a.sent_at.strftime('%d %b %Y, %I:%M %p') }}</td>
-                  <td>{{ a.patient.full_name if a.patient else '—' }}</td>
-                  <td>{{ a.recipient_email }}</td>
-                  <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+                  <td data-label="Date">{{ a.sent_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td data-label="Patient">{{ a.patient.full_name if a.patient else '—' }}</td>
+                  <td data-label="Sent To">{{ a.recipient_email }}</td>
+                  <td data-label="Status"><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
                 </tr>
                 {% endfor %}
               </tbody>

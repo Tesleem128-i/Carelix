@@ -56,23 +56,7 @@
     }
     .topbar-stat-lbl { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em; }
 
-    /* ── SIDEBAR MOBILE ── */
-    .dash-sidebar-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 200;
-    }
-    .dash-sidebar-overlay.active { display: block; }
-    @media (max-width: 768px) {
-      .dash-sidebar {
-        position: fixed !important; left: -260px !important; top: 0;
-        height: 100vh; z-index: 210;
-        transition: left 0.25s ease;
-        box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-      }
-      .dash-sidebar.open { left: 0 !important; }
-      .dash-main { margin-left: 0 !important; }
-      .dash-mobile-toggle { display: flex !important; }
-    }
+    /* Sidebar mobile handled by dashboard.css */
 
     /* ── HOSPITAL SEARCH & REGISTER ── */
     .hospital-search-box {
@@ -378,10 +362,10 @@
               <tbody>
                 {% for appt in upcoming_appointments %}
                 <tr>
-                  <td>{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
-                  <td>{{ appt.hospital.name }}</td>
-                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
-                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                  <td data-label="Date &amp; Time">{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td data-label="Hospital">{{ appt.hospital.name }}</td>
+                  <td data-label="Doctor">{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td data-label="Status"><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -514,11 +498,11 @@
               <tbody>
                 {% for appt in appointments %}
                 <tr>
-                  <td>{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
-                  <td>{{ appt.hospital.name }}</td>
-                  <td>{{ appt.doctor.name if appt.doctor else '—' }}</td>
-                  <td class="wrap">{{ appt.reason or '—' }}</td>
-                  <td><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
+                  <td data-label="Date &amp; Time">{{ appt.appointment_datetime.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td data-label="Hospital">{{ appt.hospital.name }}</td>
+                  <td data-label="Doctor">{{ appt.doctor.name if appt.doctor else '—' }}</td>
+                  <td data-label="Reason" class="wrap">{{ appt.reason or '—' }}</td>
+                  <td data-label="Status"><span class="badge badge-{{ appt.status }}">{{ appt.status }}</span></td>
                   <td>
                     {% if appt.status in ['pending','confirmed'] %}
                     <form method="POST" action="/patient/appointment/{{ appt.id }}/cancel" onsubmit="return confirmSubmit('Cancel this appointment?')">
@@ -760,10 +744,10 @@
               <tbody>
                 {% for a in alerts %}
                 <tr>
-                  <td>{{ a.sent_at.strftime('%d %b %Y, %I:%M %p') }}</td>
-                  <td>{{ a.hospital.name if a.hospital else '—' }}</td>
-                  <td>{{ a.recipient_email }}</td>
-                  <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+                  <td data-label="Date">{{ a.sent_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                  <td data-label="Hospital">{{ a.hospital.name if a.hospital else '—' }}</td>
+                  <td data-label="Sent To">{{ a.recipient_email }}</td>
+                  <td data-label="Status"><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
                 </tr>
                 {% endfor %}
               </tbody>

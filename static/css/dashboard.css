@@ -315,3 +315,150 @@
 .text-muted { color: var(--text-muted); font-size: 0.85rem; }
 .mt-12 { margin-top: 12px; }
 .section-divider { height: 1px; background: var(--border-card); margin: 18px 0; }
+/* =========================================================
+   MOBILE / RESPONSIVE — CARELIX DASHBOARD
+   ========================================================= */
+
+/* ── Sidebar overlay (shared) ── */
+.dash-sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 205;
+  cursor: pointer;
+}
+.dash-sidebar-overlay.active { display: block; }
+
+/* ── Tablet + mobile: collapse sidebar ── */
+@media (max-width: 900px) {
+  /* Sidebar slides off-screen to the left.
+     pointer-events:none is CRITICAL — without it the invisible
+     sidebar still intercepts all taps on the left side of the screen. */
+  .dash-sidebar {
+    left: -270px;
+    top: 0;
+    height: 100vh;
+    z-index: 210;
+    transition: left 0.26s ease;
+    pointer-events: none;    /* ← blocks invisible sidebar from eating clicks */
+  }
+  .dash-sidebar.open {
+    left: 0;
+    pointer-events: auto;    /* ← restore when visible */
+  }
+
+  .dash-main { margin-left: 0; padding: 20px 16px 90px; }
+
+  /* FAB toggle */
+  .dash-mobile-toggle {
+    display: flex !important;
+    z-index: 220;             /* above overlay */
+  }
+}
+
+/* ── Stat grid → 2 columns ── */
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .dash-section { padding: 16px; }
+  .dash-header h1 { font-size: 1.4rem; }
+  .dash-section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .code-box { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .code-copy-btn { width: 100%; justify-content: center; }
+  .search-box { flex-direction: column; }
+  .search-box input { width: 100%; min-width: 0; }
+  .profile-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Phone (≤ 640px) ── */
+@media (max-width: 640px) {
+  .dash-main { padding: 14px 12px 90px; }
+
+  .stat-card { padding: 14px; gap: 8px; }
+  .stat-card-icon { width: 38px; height: 38px; font-size: 1.1rem; }
+  .stat-card-value { font-size: 1.3rem; }
+  .stat-card-label { font-size: 0.78rem; }
+
+  .dash-header { margin-bottom: 16px; }
+  .dash-header h1 { font-size: 1.2rem; }
+  .dash-header p { font-size: 0.83rem; }
+
+  .dash-section { padding: 13px; margin-bottom: 14px; }
+
+  /* Tables → stacked card rows */
+  .dash-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .dash-table thead { display: none; }
+  .dash-table, .dash-table tbody, .dash-table tr, .dash-table td { display: block; width: 100%; }
+  .dash-table tbody tr {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    margin-bottom: 10px;
+    padding: 10px 13px;
+  }
+  .dash-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-card);
+    font-size: 0.84rem;
+    white-space: normal;
+    text-align: right;
+  }
+  .dash-table td:last-child { border-bottom: none; padding-bottom: 0; }
+  .dash-table td::before {
+    content: attr(data-label);
+    font-size: 0.71rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-align: left;
+  }
+
+  /* Forms */
+  .dash-form-grid { grid-template-columns: 1fr; gap: 12px; }
+  .dash-form-group.full { grid-column: 1; }
+  .dash-form-group input,
+  .dash-form-group select,
+  .dash-form-group textarea { font-size: 1rem; padding: 11px 12px; }
+  .dash-form-actions { flex-direction: column; }
+  .dash-form-actions .btn { width: 100%; justify-content: center; }
+
+  .badge { font-size: 0.7rem; padding: 3px 9px; }
+  .dash-tab { padding: 7px 13px; font-size: 0.8rem; }
+  .code-box-value { font-size: 1.4rem; }
+  .profile-grid { grid-template-columns: 1fr 1fr; }
+  .record-card-head { flex-direction: column; align-items: flex-start; }
+  .modal-box { padding: 16px; }
+  .modal-box h3 { font-size: 1rem; }
+  .btn-sm { min-height: 38px; }
+}
+
+/* ── Small phone (≤ 400px) ── */
+@media (max-width: 400px) {
+  .stat-grid { gap: 8px; }
+  .stat-card { padding: 11px 9px; }
+  .stat-card-value { font-size: 1.15rem; }
+  .profile-grid { grid-template-columns: 1fr; }
+  .dash-tab { flex: 1 1 auto; text-align: center; font-size: 0.75rem; }
+  .code-box-value { font-size: 1.2rem; }
+}
+
+/* ── iOS safe-area padding ── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 900px) {
+    .dash-main { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+    .dash-mobile-toggle { bottom: calc(18px + env(safe-area-inset-bottom)); }
+  }
+}
+
+/* ── Touch: bigger tap targets ── */
+@media (hover: none) and (pointer: coarse) {
+  .dash-nav-link { padding: 13px 14px; min-height: 44px; }
+  .dash-tab { min-height: 40px; }
+  .code-copy-btn { min-height: 44px; }
+}
