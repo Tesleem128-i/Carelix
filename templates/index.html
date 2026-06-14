@@ -6,7 +6,8 @@
   <title>Carelix – Nigeria's Unified Healthcare Identity</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../static/css/index.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
 </head>
 
   <!-- Flash Messages -->
@@ -24,10 +25,10 @@
   <nav>
     <div class="nav-inner">
       <div class="nav-brand">
-        <!-- Logo circle — add src="your-logo.png" to the img tag to use your logo -->
         <div class="circle-icon nav-logo-circle">
-          <i class='bx bx-plus-medical'></i>
-          <img src="" alt="" />
+          <i class='bx bx-plus-medical'>
+            <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+          </i>
         </div>
         <span class="nav-wordmark">Carelix</span>
       </div>
@@ -39,10 +40,10 @@
         <a href="#contact">Contact</a>
       </div>
       <div class="nav-register-btns">
-        <a href="/patient/login" class="btn btn-outline nav-cta" style="padding: 8px 18px; font-size: 0.85rem;"><i class='bx bx-log-in'></i> Patient Login</a>
-        <a href="/hospital/login" class="btn btn-primary nav-cta" style="padding: 8px 18px; font-size: 0.85rem;"><i class='bx bx-buildings'></i> Hospital Login</a>
+        <a href="/patient/login" class="btn btn-outline" style="padding: 8px 18px; font-size: 0.85rem;"><i class='bx bx-log-in'></i> Patient Login</a>
+        <a href="/hospital/login" class="btn btn-primary" style="padding: 8px 18px; font-size: 0.85rem;"><i class='bx bx-buildings'></i> Hospital Login</a>
       </div>
-      <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle dark/light mode">
+      <button class="nav-theme" id="themeBtn" title="Toggle dark/light mode" onclick="toggleTheme()">
         <i class='bx bx-moon'></i>
       </button>
       <div class="nav-burger" id="burger" onclick="toggleMenu()">
@@ -53,32 +54,28 @@
 
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
-    <a href="#home" class="mobile-link" style="animation-delay: 0.05s" onclick="closeMenu()">Home</a>
-    <a href="#about" class="mobile-link" style="animation-delay: 0.12s" onclick="closeMenu()">About</a>
-    <a href="#goals" class="mobile-link" style="animation-delay: 0.19s" onclick="closeMenu()">Goals</a>
-    <a href="#testimonials" class="mobile-link" style="animation-delay: 0.26s" onclick="closeMenu()">Testimonials</a>
-    <a href="#contact" class="mobile-link" style="animation-delay: 0.33s" onclick="closeMenu()">Contact</a>
-    <a href="/patient/register" class="mobile-link cta-link" style="animation-delay: 0.4s" onclick="closeMenu()">Patient Register <i class='bx bx-right-arrow-alt'></i></a>
-    <a href="/patient/login" class="mobile-link cta-link" style="animation-delay: 0.47s" onclick="closeMenu()">Patient Login <i class='bx bx-log-in'></i></a>
-    <a href="/hospital/register" class="mobile-link cta-link" style="animation-delay: 0.54s" onclick="closeMenu()">Hospital Register <i class='bx bx-right-arrow-alt'></i></a>
-    <a href="/hospital/login" class="mobile-link cta-link" style="animation-delay: 0.61s" onclick="closeMenu()">Hospital Login <i class='bx bx-log-in'></i></a>
+    <a href="#home" class="mobile-link" style="animation-delay:0.05s" onclick="closeMenu()">Home</a>
+    <a href="#about" class="mobile-link" style="animation-delay:0.12s" onclick="closeMenu()">About</a>
+    <a href="#goals" class="mobile-link" style="animation-delay:0.19s" onclick="closeMenu()">Goals</a>
+    <a href="#testimonials" class="mobile-link" style="animation-delay:0.26s" onclick="closeMenu()">Testimonials</a>
+    <a href="#contact" class="mobile-link" style="animation-delay:0.33s" onclick="closeMenu()">Contact</a>
+    <a href="/patient/register" class="mobile-link cta-link" style="animation-delay:0.40s" onclick="closeMenu()">Patient Register <i class='bx bx-right-arrow-alt'></i></a>
+    <a href="/patient/login" class="mobile-link cta-link" style="animation-delay:0.47s" onclick="closeMenu()">Patient Login <i class='bx bx-log-in'></i></a>
+    <a href="/hospital/register" class="mobile-link cta-link" style="animation-delay:0.54s" onclick="closeMenu()">Hospital Register <i class='bx bx-right-arrow-alt'></i></a>
+    <a href="/hospital/login" class="mobile-link cta-link" style="animation-delay:0.61s" onclick="closeMenu()">Hospital Login <i class='bx bx-log-in'></i></a>
   </div>
 
   <!-- =================== HERO =================== -->
   <section id="home" class="dot-bg">
     <div class="container">
       <div class="hero-inner">
-
-        <!-- LEFT: image — set src="your-image.jpg" to your image path -->
         <div class="hero-image-col" data-reveal="left">
           <div class="hero-img-wrap">
             <div class="img-placeholder" style="height:100%;">
-              <img src="" alt="Carelix hero image" />
+              <img src="{{url_for('static', filename='img/card.png')}}" alt="Carelix hero image" />
             </div>
           </div>
         </div>
-
-        <!-- RIGHT: content -->
         <div class="hero-content-col" data-reveal="right">
           <div class="hero-badge">
             <i class='bx bxs-shield-plus'></i>
@@ -115,7 +112,6 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </section>
@@ -131,35 +127,27 @@
         </p>
       </div>
       <div class="about-cards">
-        <div class="about-card glass" data-reveal style="transition-delay: 0.05s">
+        <div class="about-card glass" data-reveal style="transition-delay:0.05s">
           <div class="about-card-num">01</div>
-          <div class="about-card-icon blue">
-            <i class='bx bx-id-card'></i>
-          </div>
+          <div class="about-card-icon blue"><i class='bx bx-id-card'></i></div>
           <h3>Digital Medical Card</h3>
           <p>Receive a smart, verifiable digital health card that holds your full medical profile — accessible across any Carelix partner hospital in Nigeria.</p>
         </div>
-        <div class="about-card glass" data-reveal style="transition-delay: 0.12s">
+        <div class="about-card glass" data-reveal style="transition-delay:0.12s">
           <div class="about-card-num">02</div>
-          <div class="about-card-icon emerald">
-            <i class='bx bx-qr'></i>
-          </div>
+          <div class="about-card-icon emerald"><i class='bx bx-qr'></i></div>
           <h3>Unique Emergency Code</h3>
           <p>Your personal emergency code lets first responders and doctors access your critical health data instantly — blood type, allergies, chronic conditions — when every second counts.</p>
         </div>
-        <div class="about-card glass" data-reveal style="transition-delay: 0.19s">
+        <div class="about-card glass" data-reveal style="transition-delay:0.19s">
           <div class="about-card-num">03</div>
-          <div class="about-card-icon mixed">
-            <i class='bx bx-buildings'></i>
-          </div>
+          <div class="about-card-icon mixed"><i class='bx bx-buildings'></i></div>
           <h3>Connected Hospitals</h3>
           <p>Hospitals subscribe to Carelix to manage their doctors, set card pricing, update patient records, and receive seamless payments — including via OPay and major gateways.</p>
         </div>
-        <div class="about-card glass" data-reveal style="transition-delay: 0.26s">
+        <div class="about-card glass" data-reveal style="transition-delay:0.26s">
           <div class="about-card-num">04</div>
-          <div class="about-card-icon blue">
-            <i class='bx bx-lock-alt'></i>
-          </div>
+          <div class="about-card-icon blue"><i class='bx bx-lock-alt'></i></div>
           <h3>Private & Secure</h3>
           <p>Your medical data is encrypted and only accessible to authorized healthcare providers you visit. No data is shared without your knowledge or consent.</p>
         </div>
@@ -170,14 +158,12 @@
   <!-- =================== GOALS =================== -->
   <section id="goals" class="dot-bg">
     <div class="container">
-      <div data-reveal style="margin-bottom: 52px;">
+      <div data-reveal style="margin-bottom:52px;">
         <div class="section-eyebrow"><span class="dot"></span> Our Mission</div>
         <h2 class="section-title">The Goals Driving <span>Carelix</span></h2>
         <p class="section-subtitle">We are building towards a future where no Nigerian patient is treated as a stranger in a hospital.</p>
       </div>
       <div class="goals-inner">
-
-        <!-- LEFT: timeline -->
         <div class="goals-timeline" data-reveal="left">
           <div class="timeline-item">
             <div class="timeline-left">
@@ -229,16 +215,13 @@
             </div>
           </div>
         </div>
-
-        <!-- RIGHT: image — set src="your-image.jpg" to your image path -->
         <div class="goals-img-col" data-reveal="right">
           <div class="goals-img-wrap">
             <div class="img-placeholder" style="height:100%;">
-              <img src="" alt="Carelix goals image" />
+              <img src="{{ url_for('static', filename='img/card.png') }}" alt="Carelix goals image" />
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </section>
@@ -339,33 +322,29 @@
   <section id="contact" class="dot-bg">
     <div class="container">
       <div class="contact-inner">
-
-        <!-- LEFT: image — set src="your-image.jpg" to your image path -->
         <div class="contact-img-col" data-reveal="left">
           <div class="contact-img-wrap">
             <div class="img-placeholder" style="height:100%;">
-              <img src="" alt="Carelix contact image" />
+              <img src="/static/img/card.png" alt="Carelix contact image" />
             </div>
           </div>
         </div>
-
-        <!-- RIGHT: form -->
         <div class="contact-form-col" data-reveal="right">
           <div class="form-box glass">
             <div class="form-header">
-              <!-- Form icon — add src="your-icon.png" to the img tag to use your icon -->
               <div class="circle-icon">
-                <i class='bx bx-envelope'></i>
-                <img src="" alt="" />
+                <i class='bx bx-envelope'>
+                 <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+                </i>
+
               </div>
               <div class="form-header-text">
-                <h3>Get in Touch</h3>
-                <p>Register your hospital or enroll as a citizen</p>
+                <h3>Suggestions and Improvements</h3>
+                <p>Have an idea to make Carelix better? Share it with us!</p>
               </div>
             </div>
-
-            <!-- REPLACE "YOUR_FORM_ID" with your actual Formspree form ID -->
-            <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+            <!-- No action/method — fully handled by JS -->
+            <form id="contactForm" novalidate>
               <div class="form-row">
                 <div class="form-group">
                   <label for="fname">First Name</label>
@@ -399,16 +378,16 @@
                 <label for="message">Message</label>
                 <textarea id="message" name="message" placeholder="Tell us how we can help you…" required></textarea>
               </div>
-              <button type="submit" class="btn btn-emerald form-submit">
+              <button type="submit" class="btn btn-emerald form-submit" id="submitBtn">
                 <i class='bx bx-send'></i> Send Message
               </button>
+              <div id="formMsg" class="form-msg"></div>
             </form>
             <div class="form-loader" id="formLoader">
               <div class="spinner"></div> Sending your message…
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </section>
@@ -419,10 +398,11 @@
       <div class="footer-inner">
         <div class="footer-brand">
           <div class="footer-logo">
-            <!-- Footer logo — add src="your-logo.png" to the img tag to use your logo -->
-            <div class="circle-icon" style="width:52px; height:52px;">
-              <i class='bx bx-plus-medical'></i>
-              <img src="" alt="" />
+            <div class="circle-icon" style="width:52px;height:52px;">
+              <i class='bx bx-plus-medical'>
+              <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+
+              </i>
             </div>
             <span class="footer-wordmark">Carelix</span>
           </div>
@@ -468,7 +448,6 @@
         </div>
       </div>
       <div class="footer-bottom">
-        
         <div class="footer-badge">
           <i class='bx bxs-shield-plus'></i> NDPR Compliant · Secured by Carelix
         </div>
@@ -476,6 +455,7 @@
     </div>
   </footer>
 
+  <!-- Success Popup -->
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup-box glass">
       <div class="popup-icon"><i class='bx bxs-check-circle'></i></div>
@@ -485,6 +465,6 @@
     </div>
   </div>
 
-  <script src="../static/js/index.js"></script>
+  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
 </html>
