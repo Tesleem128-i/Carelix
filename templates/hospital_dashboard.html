@@ -178,30 +178,30 @@
       </div>
 
       <nav class="dash-nav">
-        <a href="#overview" class="dash-nav-link active" onclick="switchTab('overview','hospital'); closeSidebarMobile()">
+        <button class="dash-nav-link active" data-tab="overview" onclick="switchTab('overview','hospital'); closeSidebarMobile()">
           <i class='bx bx-grid-alt'></i> Overview
-        </a>
-        <a href="#enrolled" class="dash-nav-link" onclick="switchTab('enrolled','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="enrolled" onclick="switchTab('enrolled','hospital'); closeSidebarMobile()">
           <i class='bx bx-id-card'></i> Enrolled Patients
-        </a>
-        <a href="#search" class="dash-nav-link" onclick="switchTab('search','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="search" onclick="switchTab('search','hospital'); closeSidebarMobile()">
           <i class='bx bx-search-alt-2'></i> Emergency Search
-        </a>
-        <a href="#appointments" class="dash-nav-link" onclick="switchTab('appointments','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="appointments" onclick="switchTab('appointments','hospital'); closeSidebarMobile()">
           <i class='bx bx-calendar-check'></i> Appointments
-        </a>
-        <a href="#doctors" class="dash-nav-link" onclick="switchTab('doctors','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="doctors" onclick="switchTab('doctors','hospital'); closeSidebarMobile()">
           <i class='bx bx-stethoscope'></i> Doctors
-        </a>
-        <a href="#records" class="dash-nav-link" onclick="switchTab('records','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="records" onclick="switchTab('records','hospital'); closeSidebarMobile()">
           <i class='bx bx-file-blank'></i> Patient Records
-        </a>
-        <a href="#alerts" class="dash-nav-link" onclick="switchTab('alerts','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="alerts" onclick="switchTab('alerts','hospital'); closeSidebarMobile()">
           <i class='bx bx-bell'></i> Alert Logs
-        </a>
-        <a href="#settings" class="dash-nav-link" onclick="switchTab('settings','hospital'); closeSidebarMobile()">
+        </button>
+        <button class="dash-nav-link" data-tab="settings" onclick="switchTab('settings','hospital'); closeSidebarMobile()">
           <i class='bx bx-cog'></i> Hospital Settings
-        </a>
+        </button>
         <div class="dash-nav-divider"></div>
         <a href="/logout" class="dash-nav-link dash-nav-logout">
           <i class='bx bx-log-out'></i> Logout
@@ -283,7 +283,7 @@
         <div class="dash-section glass">
           <div class="dash-section-header">
             <h2><i class='bx bx-calendar-check'></i> Today's Appointments</h2>
-            <a href="#appointments" class="btn btn-outline btn-sm" onclick="switchTab('appointments','hospital')">View all</a>
+            <button class="btn btn-outline btn-sm" onclick="switchTab('appointments','hospital')">View all</button>
           </div>
           {% if today_appointments %}
           <div class="dash-table-wrap">
@@ -823,28 +823,7 @@
         }
       });
     }
-
-    // Mobile sidebar
-    function closeSidebarMobile() {
-      if (window.innerWidth <= 768) toggleSidebar();
-    }
-    function toggleSidebar() {
-      const sidebar  = document.getElementById('dashSidebar');
-      const overlay  = document.getElementById('sidebarOverlay');
-      const isOpen   = sidebar.classList.contains('open');
-      sidebar.classList.toggle('open', !isOpen);
-      if (overlay) overlay.classList.toggle('active', !isOpen);
-    }
-    (function() {
-      const inlineBtn = document.getElementById('sidebarToggleInline');
-      if (inlineBtn) {
-        const mq = window.matchMedia('(max-width: 768px)');
-        function update(e) { inlineBtn.style.display = e.matches ? 'inline-flex' : 'none'; }
-        mq.addEventListener('change', update);
-        update(mq);
-      }
-    })();
-  </script>
+    </script>
   {% if searched_patient and show_record_modal %}
   <script>document.addEventListener('DOMContentLoaded', function(){ openModal('addRecordModal'); });</script>
   {% endif %}

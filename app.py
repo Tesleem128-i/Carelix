@@ -4,13 +4,22 @@ import string
 from datetime import datetime, date, time as dtime
 from functools import wraps
 
+from dotenv import load_dotenv
+load_dotenv()  # load .env before anything else reads os.environ
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
 from utils import send_alert_email
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "carelix-dev-secret-change-in-prod")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///carelix.db")
+database_url = os.environ.get("DATABASE_URL", "")
+# Render.com sometimes returns postgres:// — SQLAlchemy needs postgresql://
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+if not database_url:
+    raise RuntimeError("DATABASE_URL environment variable is not set.")
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)

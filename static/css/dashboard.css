@@ -29,7 +29,7 @@
   bottom: 0;
   overflow-y: auto;
   z-index: 90;
-  transition: transform 0.3s ease;
+  transition: left 0.26s ease;
   display: flex;
   flex-direction: column;
 }
@@ -91,12 +91,7 @@
   box-shadow: var(--shadow-lg); font-size: 1.5rem;
 }
 
-@media (max-width: 900px) {
-  .dash-sidebar { transform: translateX(-100%); width: 240px; }
-  .dash-sidebar.open { transform: translateX(0); }
-  .dash-main { margin-left: 0; padding: 22px 16px 80px; }
-  .dash-mobile-toggle { display: flex; }
-}
+/* mobile layout handled below */
 
 /* ---------- Stat cards ---------- */
 .stat-grid {
@@ -461,4 +456,13 @@
   .dash-nav-link { padding: 13px 14px; min-height: 44px; }
   .dash-tab { min-height: 40px; }
   .code-copy-btn { min-height: 44px; }
+}
+/* ── Nav buttons reset (sidebar uses <button> elements) ── */
+button.dash-nav-link {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }

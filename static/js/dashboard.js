@@ -1,78 +1,70 @@
 /* =========================================================
-   CARELIX — DASHBOARD JS (shared by patient & hospital)
+   CARELIX — DASHBOARD JS
    ========================================================= */
 
-/* ---------- Mobile sidebar toggle ---------- */
+/* ── Sidebar ── */
 function toggleSidebar() {
-  const sb = document.getElementById('dashSidebar');
-  if (sb) sb.classList.toggle('open');
+  var sb      = document.getElementById('dashSidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  if (!sb) return;
+  var opening = !sb.classList.contains('open');
+  sb.classList.toggle('open', opening);
+  if (overlay) overlay.classList.toggle('active', opening);
 }
 
-/* close sidebar when clicking outside on mobile */
-document.addEventListener('click', function (e) {
-  const sb = document.getElementById('dashSidebar');
-  const toggleBtn = document.getElementById('sidebarToggleBtn');
-  if (!sb || !sb.classList.contains('open')) return;
-  if (sb.contains(e.target) || (toggleBtn && toggleBtn.contains(e.target))) return;
-  sb.classList.remove('open');
-});
-
-/* ---------- Copy to clipboard ---------- */
-function copyText(text, btnEl) {
-  navigator.clipboard.writeText(text).then(function () {
-    if (!btnEl) return;
-    const original = btnEl.innerHTML;
-    btnEl.innerHTML = "<i class='bx bx-check'></i> Copied!";
-    btnEl.classList.add('copied');
-    setTimeout(function () {
-      btnEl.innerHTML = original;
-      btnEl.classList.remove('copied');
-    }, 1800);
-  });
+function closeSidebarMobile() {
+  var sb      = document.getElementById('dashSidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  if (sb)      sb.classList.remove('open');
+  if (overlay) overlay.classList.remove('active');
 }
 
-/* ---------- Tabs ---------- */
+/* ── Tab switching ── */
 function switchTab(tabName, groupName) {
-  const tabs = document.querySelectorAll('[data-tab-group="' + groupName + '"] .dash-tab');
-  const panels = document.querySelectorAll('[data-panel-group="' + groupName + '"] .dash-tab-panel');
-  tabs.forEach(function (t) {
-    t.classList.toggle('active', t.dataset.tab === tabName);
+  /* panels */
+  var panels = document.querySelectorAll('[data-panel-group="' + groupName + '"] .dash-tab-panel');
+  panels.forEach(function(p) {
+    p.classList.toggle('active', p.getAttribute('data-panel') === tabName);
   });
-  panels.forEach(function (p) {
-    p.classList.toggle('active', p.dataset.panel === tabName);
+
+  /* nav links — match by data-tab attribute */
+  var links = document.querySelectorAll('.dash-nav-link[data-tab]');
+  links.forEach(function(l) {
+    l.classList.toggle('active', l.getAttribute('data-tab') === tabName);
+  });
+
+  /* scroll to top */
+  window.scrollTo(0, 0);
+}
+
+/* ── Copy to clipboard ── */
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(function() {
+    if (!btn) return;
+    var orig = btn.innerHTML;
+    btn.innerHTML = "<i class='bx bx-check'></i> Copied!";
+    btn.classList.add('copied');
+    setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('copied'); }, 1800);
   });
 }
 
-/* ---------- Modal helpers ---------- */
-function openModal(id) {
-  const m = document.getElementById(id);
-  if (m) m.classList.add('open');
-}
-function closeModal(id) {
-  const m = document.getElementById(id);
-  if (m) m.classList.remove('open');
-}
-/* close modal on overlay click */
-document.addEventListener('click', function (e) {
-  if (e.target.classList && e.target.classList.contains('modal-overlay')) {
-    e.target.classList.remove('open');
-  }
+/* ── Modals ── */
+function openModal(id)  { var m = document.getElementById(id); if (m) m.classList.add('open'); }
+function closeModal(id) { var m = document.getElementById(id); if (m) m.classList.remove('open'); }
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
 });
 
-/* ---------- Confirm before destructive form submit ---------- */
-function confirmSubmit(message) {
-  return window.confirm(message);
-}
+function confirmSubmit(msg) { return window.confirm(msg); }
 
-/* ---------- Auto-dismiss flash messages ---------- */
-document.addEventListener('DOMContentLoaded', function () {
-  const flashes = document.querySelectorAll('.flash');
-  flashes.forEach(function (f) {
-    setTimeout(function () {
-      f.style.transition = 'opacity 0.4s, transform 0.4s';
+/* ── Flash auto-dismiss ── */
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.flash').forEach(function(f) {
+    setTimeout(function() {
+      f.style.transition = 'opacity 0.4s';
       f.style.opacity = '0';
-      f.style.transform = 'translateY(-10px)';
-      setTimeout(function () { f.remove(); }, 400);
+      setTimeout(function() { f.remove(); }, 400);
     }, 4500);
   });
 });
