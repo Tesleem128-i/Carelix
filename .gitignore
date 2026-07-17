@@ -59,3 +59,8 @@ htmlcov/
 # ── Uploads / user-generated files ───────────────────────────────────────────
 uploads/
 media/
+CARE2026LIX5
+
+.env
+__pycache__/
+venv/

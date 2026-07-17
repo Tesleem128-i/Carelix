@@ -9,12 +9,12 @@ load_dotenv()  # load .env before anything else reads os.environ
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
-from utils import send_alert_email
+from Carelix.email_verify import send_alert_email, send_verification_email
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "carelix-dev-secret-change-in-prod")
 database_url = os.environ.get("DATABASE_URL", "")
-# Render.com sometimes returns postgres:// — SQLAlchemy needs postgresql://
+
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 if not database_url:
@@ -38,7 +38,7 @@ def generate_emergency_code() -> str:
         code    = f"{digits}-{letters}"
         if not Patient.query.filter_by(emergency_code=code).first():
             return code
-
+3
 
 def login_required(role=None):
     """Decorator: require login, optionally for a specific role."""
@@ -129,11 +129,71 @@ def patient_register():
         flash("Invalid date of birth.", "error")
         return render_template("patientregister.html")
 
-    # ── Create User + Patient rows ────────────────────────────────────────
+    verification_code = f"{random.randint(100000, 999999)}"
+    session["pending_patient_registration"] = {
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "password": password,
+        "dob": dob_str,
+        "gender": gender,
+        "blood_type": blood_type,
+        "genotype": genotype,
+        "allergies": allergies,
+        "conditions": conditions,
+        "medications": medications,
+        "ec_name": ec_name,
+        "ec_email": ec_email,
+        "ec_phone": ec_phone,
+    }
+    session["pending_patient_registration_code"] = verification_code
+
+    if send_verification_email(email, verification_code):
+        flash("A verification code has been sent to your email. Please enter it below.", "success")
+    else:
+        flash("We could not send the verification email. Please try again in a moment.", "error")
+        return render_template("patientregister.html")
+
+    return redirect(url_for("patient_verify_email"))
+
+
+@app.route("/patient/verify-email", methods=["GET", "POST"])
+def patient_verify_email():
+    pending = session.get("pending_patient_registration")
+    if not pending:
+        flash("Your registration session has expired. Please register again.", "error")
+        return redirect(url_for("patient_register"))
+
+    if request.method == "GET":
+        return render_template("patient_verify_email.html", email=pending["email"])
+
+    submitted_code = request.form.get("verification_code", "").strip()
+    expected_code = session.get("pending_patient_registration_code")
+
+    if submitted_code != str(expected_code):
+        flash("Invalid verification code. Please try again.", "error")
+        return render_template("patient_verify_email.html", email=pending["email"])
+
+    # ── Create User + Patient rows after the email is verified ───────────
+    first_name = pending["first_name"]
+    last_name = pending["last_name"]
+    email = pending["email"]
+    password = pending["password"]
+    dob = datetime.strptime(pending["dob"], "%Y-%m-%d").date()
+    gender = pending["gender"]
+    blood_type = pending["blood_type"]
+    genotype = pending["genotype"]
+    allergies = pending["allergies"]
+    conditions = pending["conditions"]
+    medications = pending["medications"]
+    ec_name = pending["ec_name"]
+    ec_email = pending["ec_email"]
+    ec_phone = pending["ec_phone"]
+
     user = User(role="patient", email=email)
     user.set_password(password)
     db.session.add(user)
-    db.session.flush()   # get user.id before commit
+    db.session.flush()
 
     patient = Patient(
         user_id                 = user.id,
@@ -153,10 +213,31 @@ def patient_register():
     db.session.add(patient)
     db.session.commit()
 
-    # Store the code in the session so the success page can display it once
+    session.pop("pending_patient_registration", None)
+    session.pop("pending_patient_registration_code", None)
     session["new_emergency_code"] = patient.emergency_code
-    session["new_patient_name"]   = patient.full_name
+    session["new_patient_name"] = patient.full_name
+
+    flash("Email verified successfully. Your account has been created.", "success")
     return redirect(url_for("patient_register_success"))
+
+
+@app.route("/patient/verify-email/resend", methods=["POST"])
+def resend_verification_code():
+    pending = session.get("pending_patient_registration")
+    if not pending:
+        flash("Your registration session has expired. Please register again.", "error")
+        return redirect(url_for("patient_register"))
+
+    verification_code = f"{random.randint(100000, 999999)}"
+    session["pending_patient_registration_code"] = verification_code
+
+    if send_verification_email(pending["email"], verification_code):
+        flash("A new verification code has been sent to your email.", "success")
+    else:
+        flash("We could not resend the verification email. Please try again.", "error")
+
+    return redirect(url_for("patient_verify_email"))
 
 
 @app.route("/patient/register/success")
