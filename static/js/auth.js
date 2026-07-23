@@ -81,3 +81,18 @@ window.addEventListener('load', () => {
     }
   });
 });
+
+const navBackBtn = document.getElementById('navBackBtn');
+
+if (navBackBtn) {
+    navBackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            // Fallback if there's no previous page
+            window.location.href = '/';
+        }
+    });
+}

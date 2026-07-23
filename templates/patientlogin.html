@@ -6,10 +6,10 @@
   <title>Carelix – Patient Sign In</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../static/css/auth.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
   <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
 </head>
-<body class="dot-bg">
+<body class="dot-bg patient-login-page">
 
   <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -25,68 +25,106 @@
   <!-- NAV -->
   <nav>
     <div class="nav-inner">
-      <a href="/" class="nav-brand">
-        <div class="circle-icon nav-logo-circle">
-          <i class='bx bx-plus-medical'></i>
+
+        <a href="/" class="nav-brand">
+            <div class="circle-icon nav-logo-circle">
+                <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+            </div>
+            <span class="nav-wordmark">Carelix</span>
+        </a>
+
+        <div class="nav-right">
+
+            <button class="nav-theme" onclick="toggleTheme()" id="themeBtn">
+                <i class='bx bx-moon'></i>
+            </button>
+
+            <a href="#" id="navBackBtn" class="btn btn-primary nav-back">
+    <i class='bx bx-left-arrow-alt'></i>
+    Back
+</a>
+
         </div>
-        <span class="nav-wordmark">Carelix</span>
-      </a>
-      <div class="nav-right">
-        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
-          <i class='bx bx-moon'></i>
-        </button>
-      </div>
+
     </div>
-  </nav>
+</nav>
 
   <!-- MAIN -->
   <main>
     <div class="auth-container">
 
       <!-- LEFT PANEL -->
-      <div class="auth-panel-left" data-reveal="left">
-        <div class="panel-badge emerald"><i class='bx bx-user-circle'></i> Patient Sign In</div>
-        <h1 class="panel-title">Welcome Back,<br><span class="accent-emerald">Carelix Patient.</span></h1>
-        <p class="panel-desc">Access your complete medical profile, view appointment history, manage your health records, and get your emergency code anytime.</p>
-
-        <!-- Features -->
-        <div class="panel-perks">
-          <div class="perk">
-            <div class="perk-icon emerald"><i class='bx bxs-shield-plus'></i></div>
-            <div>
-              <div class="perk-title">Your Emergency Code</div>
-              <div class="perk-desc">Access your unique 5-digit code anytime.</div>
-            </div>
-          </div>
-          <div class="perk">
-            <div class="perk-icon blue"><i class='bx bx-calendar-check'></i></div>
-            <div>
-              <div class="perk-title">Manage Appointments</div>
-              <div class="perk-desc">Book and track appointments with hospitals.</div>
-            </div>
-          </div>
-          <div class="perk">
-            <div class="perk-icon mixed"><i class='bx bx-heart-circle'></i></div>
-            <div>
-              <div class="perk-title">Medical Records</div>
-              <div class="perk-desc">View all your test results and prescriptions.</div>
-            </div>
-          </div>
+      <section class="panel-intro" data-reveal="left">
+        <div class="panel-badge emerald">
+          <i class='bx bx-user-circle'></i>
+          Patient Sign In
         </div>
 
-        <!-- Sign up link -->
-        <div class="panel-already">
-          Don't have an account? <a href="/patient/register">Create one now <i class='bx bx-right-arrow-alt'></i></a>
+        <h1 class="panel-title">
+          Welcome Back,<br>
+          <span class="accent-emerald">Carelix Patient.</span>
+        </h1>
+
+        <p class="panel-desc">
+          Access your complete medical profile, view appointment history, manage your health records, and get your emergency code anytime.
+        </p>
+
+        <div class="perk-undo">
+        <div class="perk">
+            <div class="perk-icon emerald">
+                <i class='bx bxs-shield-plus'></i>
+            </div>
+
+            <div>
+                <div class="perk-title">Your Emergency Code</div>
+                <div class="perk-desc">
+                    Access your unique 5-digit code anytime.
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="perk">
+            <div class="perk-icon blue">
+                <i class='bx bx-calendar-check'></i>
+            </div>
+
+            <div>
+                <div class="perk-title">
+                    Manage Appointments
+                </div>
+
+                <div class="perk-desc">
+                    Book and track appointments with hospitals.
+                </div>
+            </div>
+        </div>
+
+        <div class="perk">
+            <div class="perk-icon mixed">
+                <i class='bx bx-heart-circle'></i>
+            </div>
+
+            <div>
+                <div class="perk-title">
+                    Medical Records
+                </div>
+
+                <div class="perk-desc">
+                    View all your test results and prescriptions.
+                </div>
+            </div>
+        </div>
+        </div>
+
+      </section>
 
       <!-- RIGHT PANEL: FORM -->
-      <div class="auth-panel-right" data-reveal="right">
+      <section class="auth-panel-right patient-login-form" data-reveal="right">
         <div class="form-box glass">
 
           <div class="form-header">
             <div class="circle-icon form-icon-lg emerald-icon">
-              <i class='bx bx-user-circle'></i>
+              <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
             </div>
             <div class="form-header-text">
               <h2>Patient Sign In</h2>
@@ -132,29 +170,30 @@
             </div>
 
             <!-- Divider -->
-            <div class="form-divider">or</div>
+            <div class="form-divider" style="margin-top: 20px;">or</div>
 
             <!-- Login as hospital -->
             <div class="form-alt-login">
-              <p>Are you a hospital staff member?</p>
-              <a href="/hospital/login" class="btn btn-outline" style="width: 100%; margin-top: 0.75rem;">
-                <i class='bx bx-buildings'></i> Hospital Staff Login
+              <p>Are you a hospital staff?</p>
+              <a href="/hospital/login" class="btn btn-outline nav-login hospital-signin-btn" style="margin-top:20px">
+                <i class='bx bx-buildings'></i> Hospital Staff Login <i class='bx bx-chevron-right'></i>
               </a>
             </div>
 
           </form>
+          <div class="patient-signin">
+    <span>Don't have an account?</span>
+    <a href="/patient/register" class="btn btn-outline nav-login patient-signin-btn">
+        Sign Up <i class='bx bx-chevron-right'></i>
+    </a>
+</div>
         </div>
-      </div>
+      </section>
 
     </div>
   </main>
 
-  <script src="../static/js/auth.js"></script>
-  <script>
-    document.getElementById('patientLoginForm').addEventListener('submit', function() {
-      document.getElementById('submitBtn').style.display = 'none';
-      document.getElementById('formLoader').style.display = 'flex';
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/plg.js') }}"></script>
 </body>
 </html>
