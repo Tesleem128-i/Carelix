@@ -9,7 +9,7 @@ load_dotenv()  # load .env before anything else reads os.environ
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
-from Carelix.email_verify import send_alert_email, send_verification_email
+from email_verify import send_verification_email,send_alert_email
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "carelix-dev-secret-change-in-prod")
@@ -147,14 +147,15 @@ def patient_register():
         "ec_phone": ec_phone,
     }
     session["pending_patient_registration_code"] = verification_code
-
     if send_verification_email(email, verification_code):
         flash("A verification code has been sent to your email. Please enter it below.", "success")
     else:
         flash("We could not send the verification email. Please try again in a moment.", "error")
         return render_template("patientregister.html")
 
-    return redirect(url_for("patient_verify_email"))
+    return redirect(url_for("patient_verify_email")) 
+ 
+
 
 
 @app.route("/patient/verify-email", methods=["GET", "POST"])
