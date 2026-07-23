@@ -6,10 +6,10 @@
   <title>Carelix – Patient Registration</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../static/css/auth.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
   <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
 </head>
-<body class="dot-bg">
+<body class="dot-bg patient-register-page">
 
   <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -26,74 +26,106 @@
   <!-- NAV -->
   <nav>
     <div class="nav-inner">
-      <a href="/" class="nav-brand">
-        <div class="circle-icon nav-logo-circle">
-          <i class='bx bx-plus-medical'></i>
-        </div>
-        <span class="nav-wordmark">Carelix</span>
-      </a>
-      <div class="nav-right">
-        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
-          <i class='bx bx-moon'></i>
-        </button>
-        <a href="/login" class="btn btn-outline nav-login">Sign In</a>
-      </div>
-    </div>
-  </nav>
 
+        <a href="/" class="nav-brand">
+            <div class="circle-icon nav-logo-circle">
+                <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+            </div>
+            <span class="nav-wordmark">Carelix</span>
+        </a>
+
+        <div class="nav-right">
+
+            <button class="nav-theme" onclick="toggleTheme()" id="themeBtn">
+                <i class='bx bx-moon'></i>
+            </button>
+
+            <a href="#" id="navBackBtn" class="btn btn-primary nav-back">
+    <i class='bx bx-left-arrow-alt'></i>
+    Back
+</a>
+
+        </div>
+
+    </div>
+</nav>
   <!-- MAIN -->
   <main>
     <div class="auth-container">
 
       <!-- LEFT PANEL -->
-      <div class="auth-panel-left" data-reveal="left">
-        <div class="panel-badge emerald"><i class='bx bx-user-circle'></i> Patient Registration</div>
-        <h1 class="panel-title">Your Health,<br><span class="accent-emerald">One Code.</span><br>Every Hospital.</h1>
-        <p class="panel-desc">Register once and receive your personal Carelix health identity — a unique emergency code that any Nigerian hospital can use to access your medical history instantly.</p>
-
-        <!-- Code preview -->
-        <div class="code-preview glass">
-          <div class="code-preview-label"><i class='bx bxs-shield-plus'></i> Your Emergency Code</div>
-          <div class="code-preview-value">84729<span>-</span>XKP</div>
-          <div class="code-preview-hint">Memorise this. It could save your life.</div>
+      <section class="panel-intro" data-reveal="left">
+        <div class="panel-badge emerald">
+          <i class='bx bx-user-circle'></i>
+          Patient Registration
         </div>
 
-        <div class="panel-perks">
-          <div class="perk">
-            <div class="perk-icon blue"><i class='bx bx-heart-circle'></i></div>
-            <div>
-              <div class="perk-title">Complete Medical Profile</div>
-              <div class="perk-desc">Store blood type, allergies, conditions, and medications securely.</div>
+        <h1 class="panel-title">
+          Your Health,<br>
+          <span class="accent-emerald">One Code.</span><br>
+          Every Hospital.
+        </h1>
+
+        <p class="panel-desc">
+          Register once and receive your personal Carelix health identity — a unique emergency code that any Nigerian hospital can use to access your medical history instantly.
+        </p>
+
+        <div class="perk-undo">
+        <div class="perk">
+            <div class="perk-icon blue">
+                <i class='bx bx-heart-circle'></i>
             </div>
-          </div>
-          <div class="perk">
-            <div class="perk-icon emerald"><i class='bx bx-calendar-check'></i></div>
+
             <div>
-              <div class="perk-title">Book Appointments Online</div>
-              <div class="perk-desc">See doctor availability and book slots directly from your dashboard.</div>
+                <div class="perk-title">Complete Medical Profile</div>
+                <div class="perk-desc">
+                    Store blood type, allergies, conditions, and medications securely.
+                </div>
             </div>
-          </div>
-          <div class="perk">
-            <div class="perk-icon mixed"><i class='bx bx-bell'></i></div>
-            <div>
-              <div class="perk-title">Emergency Alerts</div>
-              <div class="perk-desc">Your next of kin gets notified whenever your profile is accessed in an emergency.</div>
-            </div>
-          </div>
         </div>
 
-        <div class="panel-already">
-          Already have an account? <a href="/patient/login">Sign in to your dashboard <i class='bx bx-right-arrow-alt'></i></a>
+        <div class="perk">
+            <div class="perk-icon emerald">
+                <i class='bx bx-calendar-check'></i>
+            </div>
+
+            <div>
+                <div class="perk-title">
+                    Book Appointments Online
+                </div>
+
+                <div class="perk-desc">
+                    See doctor availability and book slots directly from your dashboard.
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="perk">
+            <div class="perk-icon mixed">
+                <i class='bx bx-bell'></i>
+            </div>
+
+            <div>
+                <div class="perk-title">
+                    Emergency Alerts
+                </div>
+
+                <div class="perk-desc">
+                    Your next of kin gets notified whenever your profile is accessed in an emergency.
+                </div>
+            </div>
+        </div>
+        </div>
+
+      </section>
 
       <!-- RIGHT PANEL: FORM -->
-      <div class="auth-panel-right" data-reveal="right">
+      <section class="auth-panel-right patient-register-form" data-reveal="right">
         <div class="form-box glass">
 
           <div class="form-header">
             <div class="circle-icon form-icon-lg emerald-icon">
-              <i class='bx bx-user-circle'></i>
+              <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
             </div>
             <div class="form-header-text">
               <h2>Patient Registration</h2>
@@ -111,6 +143,7 @@
             <div class="step-line"></div>
             <div class="step" id="step-dot-4"><span>4</span><label>Account</label></div>
           </div>
+
 
           <form id="patientForm" action="/patient/register" method="POST" enctype="multipart/form-data" novalidate>
 
@@ -171,7 +204,7 @@
                 <label for="photo">Profile Photo (optional)</label>
                 <div class="file-upload" id="fileUpload">
                   <i class='bx bx-image-add'></i>
-                  <span>Click to upload or drag & drop</span>
+                  <span>Click to upload or drag &amp; drop</span>
                   <input type="file" id="photo" name="photo" accept="image/*" onchange="previewPhoto(this)" />
                 </div>
                 <img id="photoPreview" class="photo-preview" src="" alt="" style="display:none" />
@@ -346,81 +379,29 @@
               </div>
             </div>
 
+            <div class="form-divider" style="margin-top: 20px;">or</div>
+
+            <!-- Login as hospital -->
+            <div class="form-alt-login">
+              <p>Are you a hospital staff?</p>
+              <a href="/hospital/register" class="btn btn-outline nav-login hospital-signin-btn" style="margin-top:20px">
+                <i class='bx bx-buildings'></i> Hospital Staff Register <i class='bx bx-chevron-right'></i>
+              </a>
+            </div>
           </form>
+          <div class="patient-signin">
+    <span>Already have an account?</span>
+    <a href="/patient/login" class="btn btn-outline nav-login patient-signin-btn">
+        Sign In <i class='bx bx-chevron-right'></i>
+    </a>
+</div>
         </div>
-      </div>
+      </section>
 
     </div>
   </main>
 
-  <script src="../static/js/auth.js"></script>
-  <script>
-    let currentStep = 1;
-    const totalSteps = 4;
-
-    function nextStep(from) {
-      if (!validateStep(from)) return;
-      setStep(from + 1);
-    }
-    function prevStep(from) { setStep(from - 1); }
-
-    function setStep(n) {
-      document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
-      document.getElementById('step-' + n).classList.add('active');
-      document.querySelectorAll('.step').forEach((s, i) => {
-        s.classList.toggle('active', i < n);
-        s.classList.toggle('done', i < n - 1);
-      });
-      currentStep = n;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function validateStep(n) {
-      const step = document.getElementById('step-' + n);
-      const inputs = step.querySelectorAll('[required]');
-      let valid = true;
-      inputs.forEach(input => {
-        input.classList.remove('error');
-        if (!input.value.trim()) { input.classList.add('error'); valid = false; }
-      });
-      if (!valid) { const first = step.querySelector('.error'); if (first) first.focus(); }
-      return valid;
-    }
-
-    function previewPhoto(input) {
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const preview = document.getElementById('photoPreview');
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-          document.getElementById('fileUpload').style.display = 'none';
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-
-    document.getElementById('pat_password').addEventListener('input', function() {
-      const val = this.value;
-      const fill = document.getElementById('pwFill');
-      const label = document.getElementById('pwLabel');
-      let score = 0;
-      if (val.length >= 8) score++;
-      if (/[A-Z]/.test(val)) score++;
-      if (/[0-9]/.test(val)) score++;
-      if (/[^A-Za-z0-9]/.test(val)) score++;
-      const levels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-      const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
-      fill.style.width = (score * 25) + '%';
-      fill.style.background = colors[score];
-      label.textContent = levels[score] || '';
-      label.style.color = colors[score];
-    });
-
-    document.getElementById('patientForm').addEventListener('submit', function() {
-      document.getElementById('submitBtn').style.display = 'none';
-      document.getElementById('formLoader').style.display = 'flex';
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/prg.js') }}"></script>
 </body>
 </html>
