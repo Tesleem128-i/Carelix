@@ -9,11 +9,10 @@ load_dotenv()  # load .env before anything else reads os.environ
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
-<<<<<<< HEAD
-from email_verify import send_verification_email,send_alert_email
-=======
-from email_verify import send_alert_email, send_verification_email
->>>>>>> a141859f508648d379eb6130e69bc1492f43b326
+
+
+from verify_email import send_alert_email, send_verification_email
+
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "carelix-dev-secret-change-in-prod")
