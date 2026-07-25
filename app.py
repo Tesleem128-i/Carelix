@@ -9,9 +9,15 @@ load_dotenv()  # load .env before anything else reads os.environ
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
+<<<<<<< HEAD
 from email_verify import send_verification_email,send_alert_email
 
 from email_verify import send_alert_email, send_verification_email
+=======
+
+
+from verify_email import send_alert_email, send_verification_email
+>>>>>>> 674e33c35938796ef50d4ae14e23d81b6460f266
 
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
