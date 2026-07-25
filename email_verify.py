@@ -1,5 +1,3 @@
-
-
 import os
 import requests
 from datetime import datetime
@@ -48,8 +46,16 @@ def send_verification_email(to_email, code):
                 },
                 timeout=10,
             )
-            return response.status_code in (200, 201)
-        except Exception:
+            if response.status_code in (200, 201):
+                return True
+            # Brevo rejected the request — log the reason instead of failing silently.
+            print(
+                f"[Brevo] verification email failed | status={response.status_code} "
+                f"| sender={sender_email} | body={response.text}"
+            )
+            return False
+        except Exception as e:
+            print(f"[Brevo] verification email raised an exception: {e!r}")
             return False
 
     # Development fallback: allow testing without a configured Brevo key.
@@ -119,7 +125,12 @@ def send_alert_email(patient, hospital):
                     brevo_message_id = None
             else:
                 status = AlertLog.STATUS_FAILED
-        except Exception:
+                print(
+                    f"[Brevo] alert email failed | status={response.status_code} "
+                    f"| sender={sender_email} | body={response.text}"
+                )
+        except Exception as e:
+            print(f"[Brevo] alert email raised an exception: {e!r}")
             status = AlertLog.STATUS_FAILED
     else:
         # No API key configured (dev mode) — log as sent for demo purposes

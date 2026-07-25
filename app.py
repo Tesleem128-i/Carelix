@@ -9,11 +9,10 @@ load_dotenv()  # load .env before anything else reads os.environ
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
-<<<<<<< HEAD
 from email_verify import send_verification_email,send_alert_email
-=======
+
 from email_verify import send_alert_email, send_verification_email
->>>>>>> a141859f508648d379eb6130e69bc1492f43b326
+
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "carelix-dev-secret-change-in-prod")
@@ -541,28 +540,88 @@ def hospital_register():
             flash(e, "error")
         return render_template("hospitalregister.html")
 
-    # ── Create User + Hospital rows ───────────────────────────────────────
-    user = User(role="hospital_staff", email=email)
-    user.set_password(password)
+    verification_code = f"{random.randint(100000, 999999)}"
+    session["pending_hospital_registration"] = {
+        "hospital_name":       hospital_name,
+        "cac_number":          cac_number,
+        "address":             address,
+        "card_price":          card_price,
+        "phone":               phone,
+        "opay_account_number": opay_account_number,
+        "opay_account_name":   opay_account_name,
+        "email":               email,
+        "password":            password,
+    }
+    session["pending_hospital_registration_code"] = verification_code
+    if send_verification_email(email, verification_code):
+        flash("A verification code has been sent to your email. Please enter it below.", "success")
+    else:
+        flash("We could not send the verification email. Please try again in a moment.", "error")
+        return render_template("hospitalregister.html")
+
+    return redirect(url_for("hospital_verify_email"))
+
+
+@app.route("/hospital/verify-email", methods=["GET", "POST"])
+def hospital_verify_email():
+    pending = session.get("pending_hospital_registration")
+    if not pending:
+        flash("Your registration session has expired. Please register again.", "error")
+        return redirect(url_for("hospital_register"))
+
+    if request.method == "GET":
+        return render_template("hospital_verify_email.html", email=pending["email"])
+
+    submitted_code = request.form.get("verification_code", "").strip()
+    expected_code = session.get("pending_hospital_registration_code")
+
+    if submitted_code != str(expected_code):
+        flash("Invalid verification code. Please try again.", "error")
+        return render_template("hospital_verify_email.html", email=pending["email"])
+
+    # ── Create User + Hospital rows after the email is verified ─────────
+    user = User(role="hospital_staff", email=pending["email"])
+    user.set_password(pending["password"])
     db.session.add(user)
     db.session.flush()
 
     hospital = Hospital(
         user_id             = user.id,
-        name                = hospital_name,
-        address             = address,
-        phone               = phone,
-        cac_number          = cac_number,
-        opay_account_number = opay_account_number,
-        opay_account_name   = opay_account_name,
-        card_price          = float(card_price),
+        name                = pending["hospital_name"],
+        address             = pending["address"],
+        phone               = pending["phone"],
+        cac_number          = pending["cac_number"],
+        opay_account_number = pending["opay_account_number"],
+        opay_account_name   = pending["opay_account_name"],
+        card_price          = float(pending["card_price"]),
         verified            = False,   # admin approves separately
     )
     db.session.add(hospital)
     db.session.commit()
 
-    flash("Hospital registered successfully! Please log in to your dashboard.", "success")
+    session.pop("pending_hospital_registration", None)
+    session.pop("pending_hospital_registration_code", None)
+
+    flash("Email verified successfully. Please log in to your dashboard.", "success")
     return redirect(url_for("hospital_login"))
+
+
+@app.route("/hospital/verify-email/resend", methods=["POST"])
+def resend_hospital_verification_code():
+    pending = session.get("pending_hospital_registration")
+    if not pending:
+        flash("Your registration session has expired. Please register again.", "error")
+        return redirect(url_for("hospital_register"))
+
+    verification_code = f"{random.randint(100000, 999999)}"
+    session["pending_hospital_registration_code"] = verification_code
+
+    if send_verification_email(pending["email"], verification_code):
+        flash("A new verification code has been sent to your email.", "success")
+    else:
+        flash("We could not resend the verification email. Please try again.", "error")
+
+    return redirect(url_for("hospital_verify_email"))
 
 
 @app.route("/hospital/login", methods=["GET", "POST"])
