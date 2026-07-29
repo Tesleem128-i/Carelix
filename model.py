@@ -1,17 +1,4 @@
-"""
-models.py — Carelix Database Models
-====================================
-Owner  : M1 (Backend Lead)
-ORM    : SQLAlchemy (declarative base)
-Dev DB : SQLite  →  switch to PostgreSQL via DATABASE_URL in .env
-Version: v2 (Brevo Email)
 
-All models are registered here and imported by app.py via:
-    from models import db
-    db.init_app(app)
-
-Do NOT define routes in this file.
-"""
 
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
