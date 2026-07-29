@@ -474,9 +474,16 @@
             </div>
             {% endif %}
 
+            {% if patient_enrolled %}
             <div class="dash-form-actions">
               <button class="btn btn-emerald btn-sm" onclick="openModal('addRecordModal')"><i class='bx bx-plus'></i> Add Medical Record</button>
             </div>
+            {% else %}
+            <div class="dash-empty" style="margin-top:14px;">
+              <i class='bx bx-lock-alt'></i>
+              This patient isn't enrolled under {{ hospital.name }}, so you can view their emergency profile but can't add or edit medical records. Records can only be added for patients registered under your hospital.
+            </div>
+            {% endif %}
           </div>
           {% endif %}
         </div>
@@ -709,6 +716,78 @@
           <p>Update your hospital's profile information.</p>
         </div>
 
+        <!-- ═══ BRANCH LOCATIONS ═══ -->
+        <div class="dash-section glass" style="margin-bottom: 24px;">
+          <div class="dash-section-header">
+            <h2><i class='bx bx-map-alt'></i> Branch Locations</h2>
+            <span class="badge badge-verified">{{ locations|length }} location{{ 's' if locations|length != 1 else '' }}</span>
+          </div>
+          <p class="text-muted" style="font-size:0.85rem; margin-bottom:14px;">
+            Add every physical location patients can visit. When a patient searches for the nearest hospital using their live location, each branch below is checked individually so they're matched to the closest one — not just your head office.
+          </p>
+
+          {% if locations %}
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+            {% for loc in locations %}
+            <div style="border:1px solid var(--border-card); border-radius:14px; padding:14px 16px; background:var(--bg-secondary);">
+              <form method="POST" action="/hospital/locations/{{ loc.id }}/edit">
+                <div class="dash-form-grid">
+                  <div class="dash-form-group">
+                    <label>Location Name {% if loc.is_primary %}<span class="badge badge-verified" style="margin-left:6px;">Primary</span>{% endif %}</label>
+                    <input type="text" name="label" value="{{ loc.label }}" required placeholder="e.g. Main Branch, Ikeja Annex" />
+                  </div>
+                  <div class="dash-form-group">
+                    <label>Phone (optional)</label>
+                    <input type="tel" name="phone" value="{{ loc.phone or '' }}" />
+                  </div>
+                  <div class="dash-form-group full">
+                    <label>Full Address</label>
+                    <textarea name="address" required rows="2">{{ loc.address }}</textarea>
+                    {% if not loc.latitude %}
+                    <small style="font-size:0.72rem; color:#d97706; display:block; margin-top:4px;"><i class='bx bx-error'></i> Couldn't pin this address on the map yet — try making it more specific (include city and state).</small>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="dash-form-actions">
+                  <button type="submit" class="btn btn-outline btn-sm"><i class='bx bx-save'></i> Save</button>
+                </div>
+              </form>
+              <form method="POST" action="/hospital/locations/{{ loc.id }}/delete" onsubmit="return confirmSubmit('Remove this location?')" style="margin-top:6px;">
+                <button type="submit" class="btn btn-danger btn-sm"><i class='bx bx-trash'></i> Remove Location</button>
+              </form>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="dash-empty" style="margin-bottom:18px;">
+            <i class='bx bx-map-pin'></i>
+            No branch locations added yet. Add your first one below — patients using "nearest hospital" search won't find you until you do.
+          </div>
+          {% endif %}
+
+          <div class="section-divider"></div>
+          <h3 style="font-family: var(--ff-display); margin: 14px 0;">Add a Location</h3>
+          <form method="POST" action="/hospital/locations/add">
+            <div class="dash-form-grid">
+              <div class="dash-form-group">
+                <label>Location Name <span style="color:#ef4444">*</span></label>
+                <input type="text" name="label" required placeholder="e.g. Main Branch, Ikeja Annex" />
+              </div>
+              <div class="dash-form-group">
+                <label>Phone (optional)</label>
+                <input type="tel" name="phone" />
+              </div>
+              <div class="dash-form-group full">
+                <label>Full Address <span style="color:#ef4444">*</span></label>
+                <textarea name="address" required rows="2" placeholder="Street, city, state — the more specific, the more accurate distance results will be"></textarea>
+              </div>
+            </div>
+            <div class="dash-form-actions">
+              <button type="submit" class="btn btn-primary"><i class='bx bx-plus'></i> Add Location</button>
+            </div>
+          </form>
+        </div>
+
         <div class="dash-section glass">
           <form method="POST" action="/hospital/settings">
             <div class="dash-form-grid">
@@ -721,8 +800,9 @@
                 <input type="tel" name="phone" value="{{ hospital.phone or '' }}" />
               </div>
               <div class="dash-form-group full">
-                <label>Address</label>
+                <label>Head Office Address</label>
                 <textarea name="address" required>{{ hospital.address }}</textarea>
+                <small style="font-size:0.73rem; color:var(--text-muted); margin-top:4px; display:block;">This is your main registered address. To list additional branches patients can search for, use "Branch Locations" above.</small>
               </div>
               <div class="dash-form-group">
                 <label>CAC Number</label>
@@ -757,7 +837,7 @@
   </button>
 
   <!-- ADD MEDICAL RECORD MODAL -->
-  {% if searched_patient %}
+  {% if searched_patient and patient_enrolled %}
   <div class="modal-overlay" id="addRecordModal">
     <div class="modal-box glass">
       <h3>

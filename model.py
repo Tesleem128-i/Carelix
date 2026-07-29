@@ -163,9 +163,45 @@ class Hospital(db.Model):
     opay_payments   = db.relationship("OPayPayment",   back_populates="hospital",   cascade="all, delete-orphan")
     alert_logs      = db.relationship("AlertLog",      back_populates="hospital",   cascade="all, delete-orphan")
     hospital_enrolments = db.relationship("HospitalEnrolment", back_populates="hospital", cascade="all, delete-orphan")
+    locations       = db.relationship("HospitalLocation", back_populates="hospital",   cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Hospital id={self.id} name={self.name} verified={self.verified}>"
+
+
+# ---------------------------------------------------------------------------
+# 3b. hospital_locations  (branch addresses — a hospital can have several)
+# ---------------------------------------------------------------------------
+
+class HospitalLocation(db.Model):
+    """
+    A physical branch/location belonging to a hospital. Every hospital
+    starts with one (their head-office address, seeded at signup) and can
+    add more from their dashboard. Used by the "nearest hospital" patient
+    search so each branch is matched individually rather than just the
+    hospital's single registered address.
+    """
+    __tablename__ = "hospital_locations"
+
+    id          = db.Column(db.Integer,     primary_key=True, autoincrement=True)
+    hospital_id = db.Column(db.Integer,     db.ForeignKey("hospitals.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    label       = db.Column(db.String(120), nullable=False)   # e.g. "Main Branch", "Ikeja Annex"
+    address     = db.Column(db.Text,        nullable=False)
+    phone       = db.Column(db.String(15),  nullable=True)
+
+    # -- Geocoded coordinates (filled in automatically when the address is saved) --
+    latitude    = db.Column(db.Float,       nullable=True)
+    longitude   = db.Column(db.Float,       nullable=True)
+
+    is_primary  = db.Column(db.Boolean,     nullable=False, default=False)
+    created_at  = db.Column(db.DateTime,    nullable=False, default=_now)
+
+    # -- Relationships -------------------------------------------------------
+    hospital = db.relationship("Hospital", back_populates="locations")
+
+    def __repr__(self) -> str:
+        return f"<HospitalLocation id={self.id} hospital={self.hospital_id} label={self.label}>"
 
 
 # ---------------------------------------------------------------------------

@@ -1,23 +1,25 @@
 import os
 import random
 import string
-from datetime import datetime, date, time as dtime
+import math
+import uuid
+import requests
+from datetime import datetime, date, time as dtime, timedelta
 from functools import wraps
 
 from dotenv import load_dotenv
 load_dotenv()  # load .env before anything else reads os.environ
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard
-<<<<<<< HEAD
-from email_verify import send_verification_email,send_alert_email
+from model import db, User, Patient, Hospital, Doctor, Appointment, MedicalRecord, AlertLog, HospitalEnrolment, HospitalCard, HospitalLocation
 
-from email_verify import send_alert_email, send_verification_email
-=======
+from verify_email import send_verification_email,send_alert_email
+
+from verify_email import send_alert_email, send_verification_email
+
 
 
 from verify_email import send_alert_email, send_verification_email
->>>>>>> 674e33c35938796ef50d4ae14e23d81b6460f266
 
 # ── App factory ───────────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -49,6 +51,51 @@ def generate_emergency_code() -> str:
             return code
 3
 
+def haversine_km(lat1, lon1, lat2, lon2):
+    """Great-circle distance between two lat/lng points, in kilometres."""
+    R = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlambda / 2) ** 2
+    return 2 * R * math.asin(math.sqrt(a))
+
+
+_geocode_cache = {}
+
+def geocode_address(address):
+    """
+    Resolve a hospital's address to (lat, lng) using OpenStreetMap's free
+    Nominatim geocoder. Results are cached in-process (per address string)
+    so we don't re-hit the API on every request.
+
+    NOTE: If the Hospital model is later given its own `latitude` /
+    `longitude` columns (recommended for production — see note below),
+    this fallback can be skipped entirely for hospitals that already have
+    coordinates saved.
+    """
+    if not address:
+        return None
+    if address in _geocode_cache:
+        return _geocode_cache[address]
+    try:
+        resp = requests.get(
+            "https://nominatim.openstreetmap.org/search",
+            params={"q": address, "format": "json", "limit": 1},
+            headers={"User-Agent": "Carelix-Health-App/1.0"},
+            timeout=4,
+        )
+        results = resp.json()
+        if results:
+            coords = (float(results[0]["lat"]), float(results[0]["lon"]))
+            _geocode_cache[address] = coords
+            return coords
+    except Exception:
+        pass
+    _geocode_cache[address] = None
+    return None
+
+
 def login_required(role=None):
     """Decorator: require login, optionally for a specific role."""
     def decorator(f):
@@ -73,6 +120,13 @@ def current_patient():
 def current_hospital():
     user = User.query.get(session.get("user_id"))
     return user.hospital if user else None
+
+
+def is_patient_enrolled(patient_id, hospital_id):
+    """True only if this patient has registered under this specific hospital."""
+    return HospitalEnrolment.query.filter_by(
+        patient_id=patient_id, hospital_id=hospital_id
+    ).first() is not None
 
 
 # ── Landing ───────────────────────────────────────────────────────────────────
@@ -347,6 +401,7 @@ def patient_dashboard():
             "phone": h.phone,
             "card_price": h.card_price,
             "card_status": card_status,
+            "card_issued_at": card.issued_at if card else None,
         })
 
     # ── Profile completeness ────────────────────────────────────────────
@@ -603,6 +658,21 @@ def hospital_verify_email():
         verified            = False,   # admin approves separately
     )
     db.session.add(hospital)
+    db.session.flush()
+
+    # Seed the head-office address as their first branch location so
+    # "nearest hospital" search works immediately, with no extra step.
+    coords = geocode_address(pending["address"])
+    lat, lng = coords if coords else (None, None)
+    db.session.add(HospitalLocation(
+        hospital_id = hospital.id,
+        label       = "Head Office",
+        address     = pending["address"],
+        phone       = pending["phone"],
+        latitude    = lat,
+        longitude   = lng,
+        is_primary  = True,
+    ))
     db.session.commit()
 
     session.pop("pending_hospital_registration", None)
@@ -708,11 +778,26 @@ def hospital_dashboard():
         .all()
     )
 
-    enrolled_patients_count = (
-        db.session.query(Appointment.patient_id)
+    enrolments = (
+        HospitalEnrolment.query
         .filter_by(hospital_id=hospital.id)
-        .distinct()
-        .count()
+        .all()
+    )
+    enrolled_patients = []
+    for e in enrolments:
+        p = Patient.query.get(e.patient_id)
+        if not p:
+            continue
+        card = HospitalCard.query.filter_by(patient_id=p.id, hospital_id=hospital.id).first()
+        p.hospital_card_status = card.status if card else None
+        enrolled_patients.append(p)
+    enrolled_patients_count = len(enrolled_patients)
+
+    locations = (
+        HospitalLocation.query
+        .filter_by(hospital_id=hospital.id)
+        .order_by(HospitalLocation.is_primary.desc(), HospitalLocation.id)
+        .all()
     )
 
     appointments_today_count = len(today_appointments)
@@ -725,12 +810,15 @@ def hospital_dashboard():
         today_appointments=today_appointments,
         medical_records=medical_records,
         alerts=alerts,
+        enrolled_patients=enrolled_patients,
         enrolled_patients_count=enrolled_patients_count,
+        locations=locations,
         appointments_today_count=appointments_today_count,
         today=date.today().isoformat(),
         search_code=None,
         search_error=None,
         searched_patient=None,
+        patient_enrolled=False,
         alert_sent=False,
         show_record_modal=False,
     )
@@ -780,21 +868,30 @@ def hospital_search():
     )
 
     enrolled_patients_count = (
-        db.session.query(Appointment.patient_id)
+        HospitalEnrolment.query
         .filter_by(hospital_id=hospital.id)
         .distinct()
         .count()
     )
 
+    locations = (
+        HospitalLocation.query
+        .filter_by(hospital_id=hospital.id)
+        .order_by(HospitalLocation.is_primary.desc(), HospitalLocation.id)
+        .all()
+    )
+
     searched_patient = None
     search_error = None
     alert_sent = False
+    patient_enrolled = False
 
     if code:
         searched_patient = Patient.query.filter_by(emergency_code=code).first()
         if not searched_patient:
             search_error = f"No patient found with emergency code '{code}'."
         else:
+            patient_enrolled = is_patient_enrolled(searched_patient.id, hospital.id)
             # ── Trigger the next-of-kin email alert via Brevo ──────────
             alert = send_alert_email(searched_patient, hospital)
             alert_sent = (alert.status == AlertLog.STATUS_SENT)
@@ -815,11 +912,13 @@ def hospital_search():
         medical_records=medical_records,
         alerts=alerts,
         enrolled_patients_count=enrolled_patients_count,
+        locations=locations,
         appointments_today_count=len(today_appointments),
         today=date.today().isoformat(),
         search_code=code,
         search_error=search_error,
         searched_patient=searched_patient,
+        patient_enrolled=patient_enrolled,
         alert_sent=alert_sent,
         show_record_modal=False,
     )
@@ -929,6 +1028,14 @@ def hospital_add_record():
         flash("Patient not found.", "error")
         return redirect(url_for("hospital_dashboard") + "#search")
 
+    if not is_patient_enrolled(patient.id, hospital.id):
+        flash(
+            f"{patient.full_name} is not enrolled under your hospital. "
+            "You can only add or edit medical records for patients registered under your hospital.",
+            "error",
+        )
+        return redirect(url_for("hospital_search", code=patient.emergency_code) + "#search")
+
     try:
         visit_date = datetime.strptime(visit_date_s, "%Y-%m-%d").date()
     except ValueError:
@@ -975,6 +1082,13 @@ def hospital_update_settings():
     hospital.address = address
     hospital.phone = request.form.get("phone", "").strip()
 
+    # Keep the primary branch location in sync with the head-office address.
+    primary_loc = HospitalLocation.query.filter_by(hospital_id=hospital.id, is_primary=True).first()
+    if primary_loc and primary_loc.address != address:
+        primary_loc.address = address
+        coords = geocode_address(address)
+        primary_loc.latitude, primary_loc.longitude = coords if coords else (None, None)
+
     card_price = request.form.get("card_price", "")
     if card_price:
         try:
@@ -988,6 +1102,100 @@ def hospital_update_settings():
     db.session.commit()
     flash("Hospital settings updated.", "success")
     return redirect(url_for("hospital_dashboard") + "#settings")
+
+
+# ── Hospital branch locations (multiple addresses per hospital) ─────────────
+
+@app.route("/hospital/locations/add", methods=["POST"])
+@login_required(role="hospital_staff")
+def hospital_add_location():
+    hospital = current_hospital()
+
+    label   = request.form.get("label", "").strip()
+    address = request.form.get("address", "").strip()
+    phone   = request.form.get("phone", "").strip()
+
+    if not label or not address:
+        flash("Please provide a name and full address for the location.", "error")
+        return redirect(url_for("hospital_dashboard") + "#settings")
+
+    # Geocode now so nearest-hospital search doesn't have to do it later.
+    coords = geocode_address(address)
+    lat, lng = coords if coords else (None, None)
+
+    is_first = HospitalLocation.query.filter_by(hospital_id=hospital.id).count() == 0
+
+    location = HospitalLocation(
+        hospital_id = hospital.id,
+        label       = label,
+        address     = address,
+        phone       = phone or None,
+        latitude    = lat,
+        longitude   = lng,
+        is_primary  = is_first,
+    )
+    db.session.add(location)
+    db.session.commit()
+
+    flash(f"'{label}' location added.", "success")
+    return redirect(url_for("hospital_dashboard") + "#settings")
+
+
+@app.route("/hospital/locations/<int:location_id>/edit", methods=["POST"])
+@login_required(role="hospital_staff")
+def hospital_edit_location(location_id):
+    hospital = current_hospital()
+    location = HospitalLocation.query.get(location_id)
+
+    if not location or location.hospital_id != hospital.id:
+        flash("Location not found.", "error")
+        return redirect(url_for("hospital_dashboard") + "#settings")
+
+    label   = request.form.get("label", "").strip()
+    address = request.form.get("address", "").strip()
+    phone   = request.form.get("phone", "").strip()
+
+    if not label or not address:
+        flash("Please provide a name and full address for the location.", "error")
+        return redirect(url_for("hospital_dashboard") + "#settings")
+
+    # Re-geocode only if the address actually changed.
+    if address != location.address:
+        coords = geocode_address(address)
+        location.latitude, location.longitude = coords if coords else (None, None)
+
+    location.label   = label
+    location.address = address
+    location.phone   = phone or None
+    db.session.commit()
+
+    flash(f"'{label}' location updated.", "success")
+    return redirect(url_for("hospital_dashboard") + "#settings")
+
+
+@app.route("/hospital/locations/<int:location_id>/delete", methods=["POST"])
+@login_required(role="hospital_staff")
+def hospital_delete_location(location_id):
+    hospital = current_hospital()
+    location = HospitalLocation.query.get(location_id)
+
+    if not location or location.hospital_id != hospital.id:
+        flash("Location not found.", "error")
+        return redirect(url_for("hospital_dashboard") + "#settings")
+
+    was_primary = location.is_primary
+    db.session.delete(location)
+    db.session.flush()
+
+    # Promote another location to primary if we just removed the primary one.
+    if was_primary:
+        next_loc = HospitalLocation.query.filter_by(hospital_id=hospital.id).order_by(HospitalLocation.id).first()
+        if next_loc:
+            next_loc.is_primary = True
+
+    db.session.commit()
+    flash("Location removed.", "success")
+    return redirect(url_for("hospital_dashboard") + "#settings")
 @app.route("/patient/search-hospitals")
 @login_required(role="patient")
 def patient_search_hospitals():
@@ -999,6 +1207,104 @@ def patient_search_hospitals():
         {"id": h.id, "name": h.name, "address": h.address, "phone": h.phone}
         for h in results
     ]}
+
+@app.route("/patient/nearest-hospitals")
+@login_required(role="patient")
+def patient_nearest_hospitals():
+    """
+    Takes the patient's live lat/lng (from the browser's geolocation API)
+    and returns hospitals sorted by distance, nearest first.
+    """
+    try:
+        patient_lat = float(request.args.get("lat", ""))
+        patient_lng = float(request.args.get("lng", ""))
+    except (TypeError, ValueError):
+        return {"error": "Invalid or missing coordinates."}, 400
+
+    hospitals = Hospital.query.all()
+    located = []
+
+    for h in hospitals:
+        branches = HospitalLocation.query.filter_by(hospital_id=h.id).all()
+
+        if not branches:
+            # Backward-compat: hospital hasn't added branch locations yet —
+            # fall back to the single address captured at signup.
+            lat, lng = None, None
+            coords = geocode_address(h.address)
+            if coords:
+                lat, lng = coords
+            if lat is None or lng is None:
+                continue
+            distance = haversine_km(patient_lat, patient_lng, lat, lng)
+            located.append({
+                "id": h.id,
+                "name": h.name,
+                "label": None,
+                "address": h.address,
+                "phone": h.phone,
+                "distance_km": round(distance, 1),
+            })
+            continue
+
+        for b in branches:
+            lat, lng = b.latitude, b.longitude
+            if lat is None or lng is None:
+                coords = geocode_address(b.address)
+                if not coords:
+                    continue
+                lat, lng = coords
+            distance = haversine_km(patient_lat, patient_lng, lat, lng)
+            located.append({
+                "id": h.id,
+                "name": h.name,
+                "label": b.label,
+                "address": b.address,
+                "phone": b.phone or h.phone,
+                "distance_km": round(distance, 1),
+            })
+
+    located.sort(key=lambda x: x["distance_km"])
+    return {"hospitals": located[:10]}
+
+
+@app.route("/patient/hospital-card/fake-pay", methods=["POST"])
+@login_required(role="patient")
+def patient_fake_pay_hospital_card():
+    """
+    TEMPORARY test-mode payment. Simulates a successful OPay payment so the
+    hospital card flow can be verified end-to-end before real OPay
+    integration is wired up. Remove this route once real payments are live.
+    """
+    patient = current_patient()
+    hospital_id = request.form.get("hospital_id", "")
+    hospital = Hospital.query.get(int(hospital_id)) if hospital_id else None
+
+    if not hospital:
+        flash("Hospital not found.", "error")
+        return redirect(url_for("patient_dashboard") + "#hospitals")
+
+    if not is_patient_enrolled(patient.id, hospital.id):
+        flash("You must be registered under this hospital before getting a card.", "error")
+        return redirect(url_for("patient_dashboard") + "#hospitals")
+
+    card = HospitalCard.query.filter_by(patient_id=patient.id, hospital_id=hospital.id).first()
+    if not card:
+        card = HospitalCard(
+            patient_id=patient.id,
+            hospital_id=hospital.id,
+            payment_reference=f"TEST-{uuid.uuid4().hex[:12].upper()}",
+        )
+        db.session.add(card)
+
+    card.status     = HospitalCard.STATUS_ACTIVE
+    card.issued_at  = datetime.utcnow()
+    card.expires_at = datetime.utcnow() + timedelta(days=365)
+    db.session.commit()
+
+    flash(f"[TEST MODE] Payment simulated — your {hospital.name} card is now active.", "success")
+    return redirect(url_for("patient_dashboard") + "#hospitals")
+
 
 @app.route("/patient/enroll-hospital", methods=["POST"])
 @login_required(role="patient")

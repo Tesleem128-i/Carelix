@@ -27,8 +27,8 @@ function switchTab(tabName, groupName) {
     p.classList.toggle('active', p.getAttribute('data-panel') === tabName);
   });
 
-  /* nav links — match by data-tab attribute */
-  var links = document.querySelectorAll('.dash-nav-link[data-tab]');
+  /* nav links — match by data-tab attribute (sidebar + mobile bottom bar) */
+  var links = document.querySelectorAll('.dash-nav-link[data-tab], .dash-bottom-nav-link[data-tab]');
   links.forEach(function(l) {
     l.classList.toggle('active', l.getAttribute('data-tab') === tabName);
   });

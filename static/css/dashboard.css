@@ -466,3 +466,113 @@ button.dash-nav-link {
   cursor: pointer;
   font-family: inherit;
 }
+
+/* =========================================================
+   MOBILE BOTTOM TAB BAR
+   A fixed app-style tab bar for quick access to the most-used
+   sections on phones/tablets. The full sidebar (with all
+   sections + logout) stays reachable via the FAB, so this bar
+   only needs to carry the top few destinations.
+   ========================================================= */
+.dash-bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 199;
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-card);
+  padding: 6px 4px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom));
+}
+.dash-bottom-nav-inner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+}
+.dash-bottom-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 2px;
+  border-radius: 12px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.2s, background 0.2s;
+}
+.dash-bottom-nav-link i { font-size: 1.35rem; line-height: 1; }
+.dash-bottom-nav-link span {
+  font-size: 0.62rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.dash-bottom-nav-link.active { color: var(--accent-emerald); background: var(--accent-emerald-light); }
+.dash-bottom-nav-link:active { transform: scale(0.94); }
+
+@media (max-width: 900px) {
+  .dash-bottom-nav { display: block; }
+  /* leave room above the bar so content + FAB don't collide with it */
+  .dash-main { padding-bottom: 104px; }
+  .dash-mobile-toggle { bottom: 78px; }
+}
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 900px) {
+    .dash-main { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+    .dash-mobile-toggle { bottom: calc(78px + env(safe-area-inset-bottom)); }
+  }
+}
+
+/* =========================================================
+   NEAREST HOSPITAL (LIVE LOCATION)
+   ========================================================= */
+.nearest-hosp-box {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: 20px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+.nearest-hosp-box h3 {
+  font-family: var(--ff-display,'Sora',sans-serif);
+  font-size: 1rem; font-weight: 700;
+  color: var(--text-primary); margin: 0 0 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.nearest-hosp-box h3 i { color: #6366f1; }
+.nearest-hosp-box p { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 14px; }
+
+.locate-btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.locate-status { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.locate-status.error { color: #dc2626; }
+.locate-status.success { color: #059669; }
+
+.nearest-hosp-results { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.nearest-hosp-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; border-radius: 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  flex-wrap: wrap; gap: 10px;
+}
+.nearest-hosp-item:first-child { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.06); }
+.nearest-hosp-info { flex: 1; min-width: 0; }
+.nearest-hosp-name { font-weight: 700; font-size: 0.92rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.nearest-hosp-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+.nearest-hosp-meta span { display: flex; align-items: center; gap: 4px; }
+.nearest-hosp-distance {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(99,102,241,0.12); color: #6366f1;
+  border-radius: 8px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700;
+  white-space: nowrap;
+}
+.nearest-hosp-item:first-child .nearest-hosp-distance { background: #6366f1; color: #fff; }
+
+@media (max-width: 480px) {
+  .locate-btn-row { flex-direction: column; align-items: stretch; }
+}
