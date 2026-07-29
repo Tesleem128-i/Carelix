@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Verify Hospital Email</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
+  <style>
+    /* Only page-specific layout/OTP tweaks — everything else reuses auth.css tokens */
+    .verify-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - var(--nav-height));
+    }
+
+    .verify-box {
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .verify-box .form-header-text p strong { color: var(--text-primary); }
+
+    .otp-input-wrap .input-wrap input {
+      padding-left: 14px;
+      font-family: var(--ff-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.6rem;
+      text-align: center;
+    }
+
+    .resend-row {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 18px;
+    }
+
+    .resend-btn {
+      color: var(--accent-blue);
+      font-weight: 700;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0;
+    }
+    .resend-btn:hover { color: var(--blue-700); }
+
+    .change-email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .change-email-link:hover { color: var(--accent-blue); }
+  </style>
+</head>
+<body class="dot-bg hospital-login-page">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn">
+          <i class='bx bx-moon'></i>
+        </button>
+        <a href="/hospital/register" id="navBackBtn" class="btn btn-primary nav-back">
+          <i class='bx bx-left-arrow-alt'></i> Back
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="verify-wrapper">
+      <div class="verify-box">
+        <div class="form-box glass">
+
+          <div class="form-header">
+            <div class="circle-icon form-icon-lg">
+              <i class='bx bx-envelope-open'></i>
+            </div>
+            <div class="form-header-text">
+              <h2>Verify Hospital Email</h2>
+              <p>We sent a 6-digit code to <strong>{{ email }}</strong></p>
+            </div>
+          </div>
+
+          <form id="hospitalVerifyForm" action="{{ url_for('hospital_verify_email') }}" method="POST" novalidate>
+
+            <div class="form-group otp-input-wrap">
+              <label for="verification_code">Verification Code <span class="req">*</span></label>
+              <div class="input-wrap">
+                <input
+                  type="text"
+                  id="verification_code"
+                  name="verification_code"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  maxlength="6"
+                  placeholder="000000"
+                  autocomplete="one-time-code"
+                  required
+                  autofocus
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary form-submit" id="submitBtn">
+              <i class='bx bx-check-shield'></i> Verify & Continue
+            </button>
+
+            <div class="form-loader" id="formLoader">
+              <div class="spinner"></div> Verifying…
+            </div>
+
+          </form>
+
+          <div class="resend-row">
+            Didn't get the code?
+            <form action="{{ url_for('resend_hospital_verification_code') }}" method="POST" style="display:inline;">
+              <button type="submit" class="resend-btn">Resend code</button>
+            </form>
+          </div>
+
+          <div>
+            <a href="{{ url_for('hospital_register') }}" class="change-email-link">
+              <i class='bx bx-left-arrow-alt'></i> Use a different email
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script>
+    const verifyForm = document.getElementById('hospitalVerifyForm');
+    if (verifyForm) {
+      verifyForm.addEventListener('submit', function () {
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('formLoader').style.display = 'flex';
+      });
+    }
+
+    const otpInput = document.getElementById('verification_code');
+    if (otpInput) {
+      otpInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+    }
+  </script>
+</body>
+</html>

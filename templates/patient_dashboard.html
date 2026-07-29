@@ -162,6 +162,86 @@
     .booking-locked-notice-text strong { display: block; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 4px; }
     .booking-locked-notice-text span { font-size: 0.8rem; color: var(--text-muted); }
 
+    /* ── CARELIX ID CARD (real-card look) ── */
+    .cc-wrap { margin-top: 14px; }
+    .carelix-id-card {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      aspect-ratio: 1.586 / 1;
+      margin: 0 auto;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a1929 0%, #0f2942 55%, #0a3d3a 100%);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(45,212,191,0.25);
+      color: #eaf6f6;
+      font-family: var(--ff-body,'DM Sans',sans-serif);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 20px;
+    }
+    .carelix-id-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(45,212,191,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,212,191,0.08) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+    .carelix-id-card::after {
+      content: '';
+      position: absolute; top: -40%; right: -20%;
+      width: 65%; height: 180%;
+      background: radial-gradient(circle, rgba(45,212,191,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cc-top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+    .cc-brand { font-family: var(--ff-display,'Sora',sans-serif); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.01em; }
+    .cc-brand .cc-brand-accent { color: #2dd4bf; }
+    .cc-logo {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: conic-gradient(from 180deg, #16a34a, #ffffff, #16a34a);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+      flex-shrink: 0;
+    }
+    .cc-logo i { color: #0a1929; font-size: 1.15rem; }
+    .cc-body { display: flex; gap: 16px; align-items: center; position: relative; z-index: 1; flex: 1; margin: 10px 0; }
+    .cc-qr {
+      flex-shrink: 0; width: 84px; height: 84px;
+      background: #fff; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6px;
+    }
+    .cc-qr img, .cc-qr canvas, .cc-qr table { width: 100% !important; height: 100% !important; }
+    .cc-details { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+    .cc-field { display: flex; align-items: baseline; gap: 6px; }
+    .cc-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: rgba(234,246,246,0.55); width: 92px; flex-shrink: 0; }
+    .cc-value { font-size: 0.82rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cc-value.cc-id { color: #2dd4bf; letter-spacing: 0.03em; }
+    .cc-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 1;
+      font-size: 0.64rem; color: rgba(234,246,246,0.6);
+      border-top: 1px solid rgba(234,246,246,0.12); padding-top: 8px;
+    }
+    .cc-footer .cc-hosp-name { font-weight: 700; color: #fff; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cc-footer .cc-tagline { letter-spacing: 0.08em; text-transform: uppercase; }
+    .cc-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+
+    /* Printing: show only the targeted card, full-page, nothing else */
+    @media print {
+      body.printing-card > *:not(.print-target-holder) { display: none !important; }
+      body.printing-card .print-target-holder {
+        display: flex !important; align-items: center; justify-content: center;
+        position: fixed; inset: 0; background: #fff;
+      }
+      body.printing-card .print-target-holder .carelix-id-card { max-width: 500px; box-shadow: none; }
+    }
+    .print-target-holder { display: none; }
+
     /* ── MOBILE ── */
     @media (max-width: 480px) {
       .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -170,6 +250,7 @@
       .hosp-search-input-row { flex-direction: column; }
       .hcard-offer-header { flex-direction: column; }
       .my-hospitals-grid { grid-template-columns: 1fr; }
+      .cc-label { width: 78px; }
     }
   </style>
 </head>
@@ -387,6 +468,21 @@
           <p>Search for a hospital by name and register under it to get access to appointments and your hospital card.</p>
         </div>
 
+        <!-- ── Nearest Hospital (live location) ── -->
+        <div class="nearest-hosp-box">
+          <h3><i class='bx bx-current-location'></i> Find the Hospital Nearest to You</h3>
+          <p>Share your live location and we'll show hospitals on Carelix sorted by distance from where you are right now.</p>
+
+          <div class="locate-btn-row">
+            <button type="button" class="btn btn-primary" id="locateBtn" onclick="locateNearestHospitals()">
+              <i class='bx bx-crosshair'></i> Use My Live Location
+            </button>
+            <span class="locate-status" id="locateStatus"></span>
+          </div>
+
+          <div class="nearest-hosp-results" id="nearestHospResults"></div>
+        </div>
+
         <!-- ── Hospital Search Box ── -->
         <div class="hospital-search-box" style="margin-bottom: 24px;">
           <h3><i class='bx bx-search-alt'></i> Find &amp; Register Under a Hospital</h3>
@@ -433,6 +529,38 @@
 
             {% if h.card_status == 'active' %}
             <div class="my-hospital-card-badge active"><i class='bx bx-check-circle'></i> Hospital Card Active</div>
+
+            {% set name_parts = patient.full_name.split(' ') %}
+            {% set first_name = name_parts[0] %}
+            {% set last_name = name_parts[-1] if name_parts|length > 1 else '' %}
+            {% set middle_name = (name_parts[1:-1] | join(' ')) if name_parts|length > 2 else '—' %}
+
+            <div class="cc-wrap">
+              <div class="carelix-id-card" id="carelixCard{{ h.id }}">
+                <div class="cc-top">
+                  <div class="cc-brand">Care<span class="cc-brand-accent">lix</span> Card</div>
+                  <div class="cc-logo"><i class='bx bx-plus-medical'></i></div>
+                </div>
+                <div class="cc-body">
+                  <div class="cc-qr" id="ccQr{{ h.id }}"></div>
+                  <div class="cc-details">
+                    <div class="cc-field"><span class="cc-label">First Name</span><span class="cc-value">{{ first_name }}</span></div>
+                    <div class="cc-field"><span class="cc-label">Middle Name</span><span class="cc-value">{{ middle_name }}</span></div>
+                    <div class="cc-field"><span class="cc-label">Last Name</span><span class="cc-value">{{ last_name }}</span></div>
+                    <div class="cc-field"><span class="cc-label">Date Allocated</span><span class="cc-value">{{ h.card_issued_at.strftime('%m/%d/%Y') if h.card_issued_at else '—' }}</span></div>
+                    <div class="cc-field"><span class="cc-label">Patient ID</span><span class="cc-value cc-id">{{ patient.emergency_code }}</span></div>
+                  </div>
+                </div>
+                <div class="cc-footer">
+                  <span class="cc-hosp-name">{{ h.name }}</span>
+                  <span class="cc-tagline">Better Care, Everyday</span>
+                </div>
+              </div>
+              <div class="cc-actions">
+                <button type="button" class="btn btn-outline btn-sm" onclick="printCard('carelixCard{{ h.id }}')"><i class='bx bx-printer'></i> Print</button>
+                <button type="button" class="btn btn-emerald btn-sm" onclick="downloadCard('carelixCard{{ h.id }}', '{{ h.name | e }}')"><i class='bx bx-download'></i> Download</button>
+              </div>
+            </div>
             {% elif h.card_status == 'pending' %}
             <div class="my-hospital-card-badge pending"><i class='bx bx-time-five'></i> Card Payment Pending</div>
             {% else %}
@@ -455,12 +583,18 @@
                   <li><i class='bx bx-check-circle'></i> Valid for 1 year from activation</li>
                 </ul>
                 <div class="payment-coming-soon">
-                  <i class='bx bx-time'></i>
+                  <i class='bx bx-flask'></i>
                   <div>
-                    <strong style="display:block; margin-bottom:2px;">Payment not yet available</strong>
-                    OPay payment integration is coming soon. You'll be notified once it's ready.
+                    <strong style="display:block; margin-bottom:2px;">Real OPay payment isn't wired up yet</strong>
+                    Use the test button below to simulate a successful payment and check the card flow end-to-end.
                   </div>
                 </div>
+                <form method="POST" action="/patient/hospital-card/fake-pay" style="margin-top:12px;" onsubmit="return confirmSubmit('This simulates a payment for testing — no real money moves. Continue?')">
+                  <input type="hidden" name="hospital_id" value="{{ h.id }}" />
+                  <button type="submit" class="btn btn-emerald" style="width:100%; justify-content:center;">
+                    <i class='bx bx-credit-card'></i> Simulate Payment (Test Mode)
+                  </button>
+                </form>
               </div>
             </div>
             {% endif %}
@@ -765,11 +899,37 @@
     </main>
   </div>
 
-  <!-- Mobile sidebar FAB -->
+  <!-- Mobile sidebar FAB (opens full sidebar for less-used sections + logout) -->
   <button class="dash-mobile-toggle" id="sidebarToggleBtn" onclick="toggleSidebar()">
     <i class='bx bx-menu'></i>
   </button>
 
+  <!-- Mobile bottom tab bar (quick access to top sections) -->
+  <nav class="dash-bottom-nav">
+    <div class="dash-bottom-nav-inner">
+      <button class="dash-bottom-nav-link active" data-tab="overview" onclick="switchTab('overview','patient')">
+        <i class='bx bx-grid-alt'></i><span>Home</span>
+      </button>
+      <button class="dash-bottom-nav-link" data-tab="hospitals" onclick="switchTab('hospitals','patient')">
+        <i class='bx bx-building-house'></i><span>Hospitals</span>
+      </button>
+      <button class="dash-bottom-nav-link" data-tab="book" onclick="switchTab('book','patient')">
+        <i class='bx bx-calendar-plus'></i><span>Book</span>
+      </button>
+      <button class="dash-bottom-nav-link" data-tab="appointments" onclick="switchTab('appointments','patient')">
+        <i class='bx bx-calendar-check'></i><span>Appts</span>
+      </button>
+      <button class="dash-bottom-nav-link" data-tab="records" onclick="switchTab('records','patient')">
+        <i class='bx bx-heart-circle'></i><span>Records</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hidden holder used only when printing a card (see printCard() below) -->
+  <div class="print-target-holder" id="printCardHolder"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="../static/js/auth.js"></script>
   <script src="../static/js/dashboard.js"></script>
   <script>
@@ -851,6 +1011,136 @@
     function escapeHtml(str) {
       return String(str).replace(/[&<>"']/g, function(c) {
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    // ── Nearest hospital via live location (calls /patient/nearest-hospitals?lat=..&lng=..) ──
+    const _enrolledIds = {{ (my_hospitals | map(attribute='id') | list) | tojson }};
+
+    function locateNearestHospitals() {
+      const statusEl  = document.getElementById('locateStatus');
+      const resultsEl = document.getElementById('nearestHospResults');
+      const btn       = document.getElementById('locateBtn');
+
+      if (!navigator.geolocation) {
+        statusEl.className = 'locate-status error';
+        statusEl.innerHTML = '<i class=\'bx bx-error-circle\'></i> Your browser doesn\'t support location services.';
+        return;
+      }
+
+      btn.disabled = true;
+      statusEl.className = 'locate-status';
+      statusEl.innerHTML = '<i class=\'bx bx-loader-alt bx-spin\'></i> Getting your location…';
+      resultsEl.innerHTML = '';
+
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          statusEl.innerHTML = '<i class=\'bx bx-loader-alt bx-spin\'></i> Searching nearby hospitals…';
+
+          fetch('/patient/nearest-hospitals?lat=' + lat + '&lng=' + lng)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.error || !data.hospitals || data.hospitals.length === 0) {
+                statusEl.className = 'locate-status error';
+                statusEl.innerHTML = '<i class=\'bx bx-error-circle\'></i> Couldn\'t find any hospitals near you.';
+                return;
+              }
+              statusEl.className = 'locate-status success';
+              statusEl.innerHTML = '<i class=\'bx bx-check-circle\'></i> Found ' + data.hospitals.length + ' hospital(s) near you.';
+
+              resultsEl.innerHTML = data.hospitals.map(function(h) {
+                const isEnrolled = _enrolledIds.includes(h.id);
+                return '<div class="nearest-hosp-item">' +
+                  '<div class="nearest-hosp-info">' +
+                    '<div class="nearest-hosp-name">' + escapeHtml(h.name) + (h.label ? ' <span style="font-weight:500;color:var(--text-muted);font-size:0.78rem;">— ' + escapeHtml(h.label) + '</span>' : '') + '</div>' +
+                    '<div class="nearest-hosp-meta">' +
+                      '<span><i class=\'bx bx-map-pin\'></i>' + escapeHtml(h.address) + '</span>' +
+                      (h.phone ? '<span><i class=\'bx bx-phone\'></i>' + escapeHtml(h.phone) + '</span>' : '') +
+                    '</div>' +
+                  '</div>' +
+                  '<span class="nearest-hosp-distance"><i class=\'bx bx-map\'></i>' + h.distance_km + ' km</span>' +
+                  (isEnrolled
+                    ? '<span class="hosp-result-badge"><i class=\'bx bx-check-circle\'></i> Enrolled</span>'
+                    : '<button class="btn btn-emerald btn-sm" onclick="enrollHospital(' + h.id + ')" style="white-space:nowrap;">' +
+                      '<i class=\'bx bx-log-in-circle\'></i> Enrol</button>'
+                  ) +
+                '</div>';
+              }).join('');
+            })
+            .catch(function() {
+              statusEl.className = 'locate-status error';
+              statusEl.innerHTML = '<i class=\'bx bx-error-circle\'></i> Something went wrong while searching. Please try again.';
+            })
+            .finally(function() { btn.disabled = false; });
+        },
+        function(error) {
+          btn.disabled = false;
+          statusEl.className = 'locate-status error';
+          let msg = 'Unable to get your location.';
+          if (error.code === error.PERMISSION_DENIED) {
+            msg = 'Location permission denied. Please allow location access and try again.';
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            msg = 'Your location is currently unavailable.';
+          } else if (error.code === error.TIMEOUT) {
+            msg = 'Location request timed out. Please try again.';
+          }
+          statusEl.innerHTML = '<i class=\'bx bx-error-circle\'></i> ' + msg;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    }
+
+    // ── Carelix ID card: render QR codes for each active hospital card ──
+    document.addEventListener('DOMContentLoaded', function() {
+      {% for h in my_hospitals %}
+      {% if h.card_status == 'active' %}
+      (function() {
+        var qrEl = document.getElementById('ccQr{{ h.id }}');
+        if (qrEl && window.QRCode) {
+          new QRCode(qrEl, {
+            text: {{ patient.emergency_code | tojson }},
+            width: 84, height: 84,
+            colorDark: '#0a1929', colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      })();
+      {% endif %}
+      {% endfor %}
+    });
+
+    // ── Print a single Carelix ID card (hides everything else on the page) ──
+    function printCard(cardId) {
+      var original = document.getElementById(cardId);
+      var holder   = document.getElementById('printCardHolder');
+      if (!original || !holder) return;
+
+      holder.innerHTML = '';
+      holder.appendChild(original.cloneNode(true));
+      document.body.classList.add('printing-card');
+      window.print();
+    }
+    window.addEventListener('afterprint', function() {
+      document.body.classList.remove('printing-card');
+      var holder = document.getElementById('printCardHolder');
+      if (holder) holder.innerHTML = '';
+    });
+
+    // ── Download a single Carelix ID card as a PNG image ──
+    function downloadCard(cardId, hospitalName) {
+      var el = document.getElementById(cardId);
+      if (!el || !window.html2canvas) return;
+      html2canvas(el, { scale: 3, backgroundColor: null, useCORS: true }).then(function(canvas) {
+        var link = document.createElement('a');
+        var safeName = String(hospitalName).replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '');
+        link.download = 'Carelix-Card-' + (safeName || 'hospital') + '.png';
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       });
     }
 

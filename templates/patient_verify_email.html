@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carelix – Verify Your Email</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}" type="image/png" />
+  <style>
+    .verify-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .verify-card {
+      background: var(--glass-bg, rgba(255,255,255,0.85));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border, rgba(255,255,255,0.4));
+      border-radius: 1.5rem;
+      padding: 2.75rem 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .verify-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+    }
+
+    .verify-icon i { font-size: 2.1rem; color: #fff; }
+
+    .verify-card h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary, #0f172a);
+      margin: 0 0 0.5rem;
+    }
+
+    .verify-card .sub {
+      font-size: 0.92rem;
+      color: var(--text-secondary, #64748b);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .verify-card .sub strong {
+      color: var(--text-primary, #0f172a);
+    }
+
+    .otp-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .otp-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary, #0f172a);
+      margin-bottom: 0.5rem;
+    }
+
+    .otp-input {
+      width: 100%;
+      font-family: 'Sora', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.5rem;
+      text-align: center;
+      padding: 0.85rem 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border, #e2e8f0);
+      background: var(--input-bg, #fff);
+      color: var(--text-primary, #0f172a);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .otp-input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+    }
+
+    .btn-verify {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.8rem 1.6rem;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16,185,129,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-verify:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+
+    .form-loader {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary, #64748b);
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-loader.active { display: flex; }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(16,185,129,0.25);
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .resend-row {
+      font-size: 0.87rem;
+      color: var(--text-secondary, #64748b);
+    }
+
+    .resend-row form { display: inline; }
+
+    .resend-btn {
+      background: none;
+      border: none;
+      color: #10b981;
+      font-weight: 600;
+      font-size: 0.87rem;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .resend-btn:hover { color: #059669; }
+
+    .change-email {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .change-email a {
+      color: var(--text-secondary, #64748b);
+      text-decoration: none;
+    }
+
+    .change-email a:hover { color: #10b981; }
+
+    [data-theme="dark"] .verify-card {
+      background: rgba(15,23,42,0.85);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    [data-theme="dark"] .verify-card h1 { color: #f1f5f9; }
+    [data-theme="dark"] .otp-input {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+      color: #f1f5f9;
+    }
+  </style>
+</head>
+<body class="dot-bg">
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-brand">
+        <div class="circle-icon nav-logo-circle">
+          <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Carelix Logo" />
+        </div>
+        <span class="nav-wordmark">Carelix</span>
+      </a>
+      <div class="nav-right">
+        <button class="nav-theme" onclick="toggleTheme()" id="themeBtn">
+          <i class='bx bx-moon'></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="verify-wrapper">
+      <div class="verify-card">
+
+        <div class="verify-icon">
+          <i class='bx bx-envelope-open'></i>
+        </div>
+
+        <h1>Verify your email</h1>
+        <p class="sub">
+          We sent a 6-digit code to <strong>{{ email }}</strong>. Enter it below to
+          finish creating your Carelix account.
+        </p>
+
+        <form id="verifyForm" action="{{ url_for('patient_verify_email') }}" method="POST" novalidate>
+          <div class="otp-group">
+            <label for="verification_code">Verification Code</label>
+            <input
+              type="text"
+              id="verification_code"
+              name="verification_code"
+              class="otp-input"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="6"
+              placeholder="000000"
+              autocomplete="one-time-code"
+              required
+              autofocus
+            />
+          </div>
+
+          <button type="submit" class="btn-verify" id="submitBtn">
+            <i class='bx bx-check-shield'></i> Verify & Continue
+          </button>
+
+          <div class="form-loader" id="formLoader">
+            <div class="spinner"></div> Verifying…
+          </div>
+        </form>
+
+        <div class="resend-row">
+          Didn't get the code?
+          <form action="{{ url_for('resend_verification_code') }}" method="POST">
+            <button type="submit" class="resend-btn">Resend code</button>
+          </form>
+        </div>
+
+        <div class="change-email">
+          <a href="{{ url_for('patient_register') }}">
+            <i class='bx bx-left-arrow-alt'></i> Use a different email
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script>
+    const verifyForm = document.getElementById('verifyForm');
+    if (verifyForm) {
+      verifyForm.addEventListener('submit', function () {
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('formLoader').classList.add('active');
+      });
+    }
+
+    // Only allow digits in the OTP field
+    const otpInput = document.getElementById('verification_code');
+    if (otpInput) {
+      otpInput.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+    }
+  </script>
+</body>
+</html>
