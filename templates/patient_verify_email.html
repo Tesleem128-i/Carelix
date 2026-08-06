@@ -40,15 +40,15 @@
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: transparent;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 1.25rem;
-      box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
 
-    .verify-icon i { font-size: 2.1rem; color: #fff; }
+    .verify-icon i { font-size: 2.5rem; color: #fff; }
 
     .verify-card h1 {
       font-family: 'Sora', sans-serif;
@@ -125,29 +125,52 @@
 
     .btn-verify:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
 
-    .form-loader {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      font-size: 0.88rem;
-      color: var(--text-secondary, #64748b);
-      margin-top: -0.5rem;
-      margin-bottom: 1rem;
-    }
+    
 
-    .form-loader.active { display: flex; }
 
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(16,185,129,0.25);
-      border-top-color: #10b981;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+    .loader-overlay{
+    position: fixed;
+    inset: 0;
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    display: none;              /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(255,255,255,.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    z-index: 99999;
+}
+
+.loader-overlay.show{
+    display: flex;
+}
+
+.loader-content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+.loader-image{
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.loader-text{
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.loader-overlay{
+    background: rgba(10,15,25,.35);
+    backdrop-filter: blur(12px);
+}
+
 
     .resend-row {
       font-size: 0.87rem;
@@ -220,6 +243,11 @@
         <button class="nav-theme" onclick="toggleTheme()" id="themeBtn">
           <i class='bx bx-moon'></i>
         </button>
+         <div class="nav-divider"></div>
+        <a href="#" id="navBackBtn" class="btn btn-primary nav-back">
+    <i class='bx bx-left-arrow-alt'></i>
+    Back
+</a>
       </div>
     </div>
   </nav>
@@ -229,7 +257,7 @@
       <div class="verify-card">
 
         <div class="verify-icon">
-          <i class='bx bx-envelope-open'></i>
+          <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Email Icon" />
         </div>
 
         <h1>Verify your email</h1>
@@ -260,9 +288,15 @@
             <i class='bx bx-check-shield'></i> Verify & Continue
           </button>
 
-          <div class="form-loader" id="formLoader">
-            <div class="spinner"></div> Verifying…
-          </div>
+          <div class="loader-overlay" id="formLoader">
+    <div class="loader-content">
+        <img src="{{ url_for('static', filename='img/busy.gif') }}"
+             alt="Loading..."
+             class="loader-image">
+
+        <p class="loader-text">Verifying your email...</p>
+    </div>
+</div>
         </form>
 
         <div class="resend-row">
@@ -285,20 +319,25 @@
   <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
   <script>
     const verifyForm = document.getElementById('verifyForm');
-    if (verifyForm) {
-      verifyForm.addEventListener('submit', function () {
-        document.getElementById('submitBtn').style.display = 'none';
-        document.getElementById('formLoader').classList.add('active');
-      });
-    }
 
-    // Only allow digits in the OTP field
-    const otpInput = document.getElementById('verification_code');
-    if (otpInput) {
-      otpInput.addEventListener('input', function () {
+if (verifyForm) {
+    verifyForm.addEventListener('submit', function () {
+
+        document.getElementById('submitBtn').style.display = 'none';
+
+        document.getElementById('formLoader').classList.add('show');
+
+    });
+}
+
+// Only allow digits
+const otpInput = document.getElementById('verification_code');
+
+if (otpInput) {
+    otpInput.addEventListener('input', function () {
         this.value = this.value.replace(/[^0-9]/g, '');
-      });
-    }
+    });
+}
   </script>
 </body>
 </html>

@@ -62,6 +62,20 @@
       color: var(--text-muted);
     }
     .change-email-link:hover { color: var(--accent-blue); }
+
+    .verify-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .verify-icon i { font-size: 2.5rem; color: #fff; }
   </style>
 </head>
 <body class="dot-bg hospital-login-page">
@@ -77,8 +91,7 @@
     {% endif %}
   {% endwith %}
 
-  <!-- NAV -->
-  <nav>
+   <nav>
     <div class="nav-inner">
       <a href="/" class="nav-brand">
         <div class="circle-icon nav-logo-circle">
@@ -90,9 +103,11 @@
         <button class="nav-theme" onclick="toggleTheme()" id="themeBtn">
           <i class='bx bx-moon'></i>
         </button>
-        <a href="/hospital/register" id="navBackBtn" class="btn btn-primary nav-back">
-          <i class='bx bx-left-arrow-alt'></i> Back
-        </a>
+         <div class="nav-divider"></div>
+        <a href="#" id="navBackBtn" class="btn btn-primary nav-back">
+    <i class='bx bx-left-arrow-alt'></i>
+    Back
+</a>
       </div>
     </div>
   </nav>
@@ -104,9 +119,9 @@
         <div class="form-box glass">
 
           <div class="form-header">
-            <div class="circle-icon form-icon-lg">
-              <i class='bx bx-envelope-open'></i>
-            </div>
+            <div class="verify-icon">
+          <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Email Icon" />
+        </div>
             <div class="form-header-text">
               <h2>Verify Hospital Email</h2>
               <p>We sent a 6-digit code to <strong>{{ email }}</strong></p>

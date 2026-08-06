@@ -96,8 +96,10 @@
       repeating-linear-gradient(to right, transparent 0px, transparent 38px, var(--dot-color) 38px, var(--dot-color) 38.8px);
     z-index: 0;
   }
-  .dot-bg > * { position: relative; z-index: 1; }
-
+.dot-bg > *:not(nav) {
+    position: relative;
+    z-index: 1;
+}
   /* glass card */
   .glass {
     background: var(--bg-glass);
@@ -194,7 +196,15 @@
     -webkit-backdrop-filter: blur(18px) saturate(1.5);
     border-bottom: 1px solid var(--border-subtle);
     transition: background 0.35s;
+    background: rgba(10,15,25,.35);
   }
+
+  .nav-divider{
+    width: 1px;
+    height: 26px;
+    background: var(--border-subtle);
+    opacity: 3;
+}
   .nav-inner {
     max-width: 1180px; margin: 0 auto; padding: 0 28px;
     width: 100%; display: flex; align-items: center; gap: 20px;

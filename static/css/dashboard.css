@@ -1,21 +1,14 @@
-/* =========================================================
-   CARELIX — DASHBOARD STYLES (shared by patient & hospital)
-   Relies on CSS variables / resets defined in index.css
-   ========================================================= */
-
 .dash-body {
   min-height: 100vh;
   background: var(--bg-secondary);
 }
 
-/* ---------- Layout shell ---------- */
 .dash-shell {
   display: flex;
   min-height: 100vh;
   padding-top: var(--nav-height);
 }
 
-/* ---------- Sidebar ---------- */
 .dash-sidebar {
   width: 250px;
   flex-shrink: 0;

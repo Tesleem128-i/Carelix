@@ -98,8 +98,17 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
     repeating-linear-gradient(to right, transparent 0px, transparent 38px, var(--dot-color) 38px, var(--dot-color) 38.8px);
   z-index: 0;
 }
-.dot-bg > * { position: relative; z-index: 1; }
+.dot-bg > *:not(nav) {
+    position: relative;
+    z-index: 1;
+}
 
+.nav-divider{
+    width: 1px;
+    height: 26px;
+    background: var(--border-subtle);
+    opacity: 3;
+}
 /* ── GLASS ── */
 .glass {
   background: var(--bg-glass);
